@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id ('maven-publish')
+    id('maven-publish')
 }
 
 apply plugin: 'signing'
@@ -12,7 +12,6 @@ android {
 
     defaultConfig {
         minSdk 24
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -61,6 +60,56 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.8'
 
 }
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            afterEvaluate {
+
+                from components.release
+
+                groupId = 'com.engage'
+                artifactId = 'engage-ads-sdk'
+                version = '1.0.0'
+
+                pom {
+                    name = 'Engage Ads SDK'
+                    description = 'A description of Engage Ads SDK'
+                    url = 'https://github.com/engage-media/engage-ads-sdk'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'engage-media'
+                            name = 'Engage Media'
+                            email = 'info@engagemedia.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:git://github.com/engage-media/engage-ads-sdk.git'
+                        developerConnection = 'scm:git:ssh://git@github.com:engage-media/engage-ads-sdk.git'
+                        url = 'https://github.com/engage-media/engage-ads-sdk'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url 'https://jitpack.io'
+        }
+    }
+}
+
+signing {
+    sign publishing.publications
+}
+
 
 afterEvaluate {
     android.libraryVariants.each { variant ->
