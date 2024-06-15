@@ -106,10 +106,6 @@ publishing {
     }
 }
 
-signing {
-    sign publishing.publications
-}
-
 
 afterEvaluate {
     android.libraryVariants.each { variant ->
