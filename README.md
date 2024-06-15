@@ -36,7 +36,7 @@ Add the dependency to your module-level `build.gradle` file:
 
 ```groovy
 dependencies {
-    implementation 'com.github.engage-media:engage-ads-sdk:v1.0.1'
+    implementation 'com.github.engage-media:engage-ads-sdk:v1.0.2'
 }
 ```
 
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val adView = findViewById<EMAdView>(R.id.adView)
-        adView.setAdEventListener(object : DefaultVideoPlayerListener() {
+        adView.setAdEventListener(object : EMVideoPlayerListener() {
             override fun onAdStarted() {
                 // Ad started
             }
@@ -89,6 +89,22 @@ class MainActivity : AppCompatActivity() {
                 // Ad completed
             }
         })
+    }
+}
+```
+
+Or alternatively, use the default:
+
+```kotlin
+import com.engage.engageadssdk.EMAdView
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val adView = findViewById<EMAdView>(R.id.adView)
+        adView.setAdEventListener(DefaultAdEventListener())
     }
 }
 ```
