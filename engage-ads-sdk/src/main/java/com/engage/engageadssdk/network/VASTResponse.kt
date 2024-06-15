@@ -86,11 +86,14 @@ class Ad @JvmOverloads constructor(
 
 @Root(name = "VAST", strict = false)
 data class VASTResponse @JvmOverloads constructor(
-    @field:Element(name = "Ad", )
+    @field:Element(name = "Ad", required = false )
     var Ad: Ad? = null,
-    @field:Attribute(name = "version",)
+    @field:Attribute(name = "version", required = false)
     var version: Double = 0.0,
     @field:Element(name = "Extensions", required = false)
     var extensions: Extensions? = null,
-)
+) {
+    val isEmpty: Boolean
+        get() = Ad == null
+}
 

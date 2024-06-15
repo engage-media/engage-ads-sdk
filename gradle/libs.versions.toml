@@ -1,5 +1,6 @@
 [versions]
 agp = "8.4.1"
+engageAdsSdk = "1.0.2"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 appcompat = "1.7.0"
@@ -27,6 +28,7 @@ androidx-tv-foundation = { group = "androidx.tv", name = "tv-foundation", versio
 androidx-tv-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvMaterial" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+engage-ads-sdk = { module = "com.github.engage-media:engage-ads-sdk", version.ref = "engageAdsSdk" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

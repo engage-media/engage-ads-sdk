@@ -1,26 +1,15 @@
 package com.engage.engageadssdk.ima
 
-import android.net.Uri
-import androidx.media3.common.MediaItem
+import android.util.Log
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DataSpec
-import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.exoplayer.ima.ImaAdsLoader
-import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
-import androidx.media3.exoplayer.source.ads.AdsMediaSource
-import androidx.media3.ui.PlayerView
 import com.engage.engageadssdk.EMAdRequester
 import com.engage.engageadssdk.data.EMAdMapper
 import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.network.AdNetworkService
 import com.engage.engageadssdk.network.EmptyVASTResponseException
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNot
-import kotlinx.coroutines.flow.internal.ChannelFlow
 import kotlinx.coroutines.flow.map
 
 @UnstableApi
@@ -38,18 +27,18 @@ internal class AdRequesterImpl(
         }
 
     override suspend fun requestAds() {
-        val videoUrl = try {
+        val result = try {
             adNetworkService.fetchVASTResponse(vastUrl)
         } catch (e: EmptyVASTResponseException) {
             adNetworkService.fetchVASTResponse(adNetworkService.defaultVastUrl)
         } catch (e: Exception) {
-            error("Something horrible happened")
+            Log.e("AdRequesterImpl", "Something horrible happened")
+            adNetworkService.fetchVASTResponse(adNetworkService.defaultVastUrl)
         }
-        val mappedResponse = EMAdMapper().mapToEMVASTAd(videoUrl)
+
+        val mappedResponse =
+            EMAdMapper.mapToEMVASTAd(result, vastUrl)
         flow.value = mappedResponse
+
     }
-
-    override val completeVastUrl: String
-        get() = adNetworkService.vastUrl
-
 }

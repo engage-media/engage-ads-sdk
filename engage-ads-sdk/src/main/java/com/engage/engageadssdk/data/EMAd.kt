@@ -12,7 +12,10 @@ sealed class EMVASTAd(
     val adSequence: Int = 0,
     val adError: String? = null,
     val adImpressions: List<String>? = null,
-)
+    val vastUrl: String,
+) {
+
+}
 
 class EMVASTMediaFile(
     val id: String? = null,
@@ -36,6 +39,7 @@ class EMVASTPreLoadAd(
     adSequence: Int = 0,
     adError: String? = null,
     adImpressions: List<String>? = null,
+    vastUrl: String,
 ) : EMVASTAd(
     adSystem = adSystem,
     adTitle = adTitle,
@@ -45,7 +49,8 @@ class EMVASTPreLoadAd(
     adId = adId,
     adSequence = adSequence,
     adError = adError,
-    adImpressions = adImpressions
+    adImpressions = adImpressions,
+    vastUrl = vastUrl,
 )
 
 
@@ -60,6 +65,7 @@ class EMVASTMidrollAd(
     adSequence: Int = 0,
     adError: String? = null,
     adImpressions: List<String>? = null,
+    vastUrl: String,
 ) : EMVASTAd(
     adSystem = adSystem,
     adTitle = adTitle,
@@ -69,7 +75,8 @@ class EMVASTMidrollAd(
     adId = adId,
     adSequence = adSequence,
     adError = adError,
-    adImpressions = adImpressions
+    adImpressions = adImpressions,
+    vastUrl = vastUrl,
 )
 
 class EMVASTPostrollAd(
@@ -82,6 +89,7 @@ class EMVASTPostrollAd(
     adSequence: Int = 0,
     adError: String? = null,
     adImpressions: List<String>? = null,
+    vastUrl: String,
 ) : EMVASTAd(
     adSystem = adSystem,
     adTitle = adTitle,
@@ -91,5 +99,6 @@ class EMVASTPostrollAd(
     adId = adId,
     adSequence = adSequence,
     adError = adError,
-    adImpressions = adImpressions
+    adImpressions = adImpressions,
+    vastUrl = vastUrl,
 )

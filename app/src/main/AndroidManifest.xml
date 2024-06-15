@@ -9,13 +9,22 @@
         android:name="android.software.leanback"
         android:required="false" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
+        android:networkSecurityConfig="@xml/network_security_config" android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:banner="@mipmap/ic_launcher"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.EngageMediaAdsSdk">
+
+        <meta-data
+            android:name="com.engage.vastUrl"
+            android:value="http://vast.engagemediatv.com/?channel=62570352&amp;publisher=a8ce40dc" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

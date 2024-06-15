@@ -4,9 +4,9 @@ import com.engage.engageadssdk.network.VASTResponse
 import com.engage.engageadssdk.network.MediaFile
 import java.text.SimpleDateFormat
 
-class EMAdMapper {
+object EMAdMapper {
 
-    fun mapToEMVASTAd(vastResponse: VASTResponse): List<EMVASTAd> {
+    fun mapToEMVASTAd(vastResponse: VASTResponse, vastUrl: String): List<EMVASTAd> {
         // Mapping VASTResponse to EMVASTAd based on the creatives and media files
         // The first creative is a PREROLL ad, otherwise it's a midroll ad based on the offset
         // the last ad is a POSTROLL ad
@@ -27,6 +27,7 @@ class EMAdMapper {
                     adId = adId,
                     adSequence = it.sequence ?: 0,
                     adError = vastResponse.extensions?.serverError,
+                    vastUrl = vastUrl,
                 )
 
                 vastResponse.Ad?.InLine?.Creatives?.Creative?.size?.minus(1) -> {
@@ -42,7 +43,7 @@ class EMAdMapper {
                         adId = adId,
                         adSequence = it.sequence,
                         adError = vastResponse.extensions?.serverError,
-
+                        vastUrl = vastUrl,
                         )
                 }
 
@@ -59,6 +60,7 @@ class EMAdMapper {
                     adId = adId,
                     adSequence = it.sequence ?: 0,
                     adError = vastResponse.extensions?.serverError,
+                    vastUrl = vastUrl,
                 )
             }
         }

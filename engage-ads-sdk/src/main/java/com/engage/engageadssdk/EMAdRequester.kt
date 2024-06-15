@@ -7,6 +7,5 @@ import kotlinx.coroutines.flow.Flow
 
 internal interface EMAdRequester {
     suspend fun requestAds()
-    val completeVastUrl: String
     val receivedAds: Flow<List<EMVASTAd>>
 }

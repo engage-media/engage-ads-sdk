@@ -4,6 +4,8 @@ plugins {
     id ('maven-publish')
 }
 
+apply plugin: 'signing'
+
 android {
     namespace 'com.engage.com.engage.engageadssdk'
     compileSdk 34
@@ -56,6 +58,8 @@ dependencies {
 
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation 'com.google.code.gson:gson:2.8.8'
+
 }
 
 afterEvaluate {
@@ -63,7 +67,19 @@ afterEvaluate {
         publishing.publications.create(variant.name, MavenPublication) {
             groupId = 'com.engage.engageadssdk'
             artifactId = 'engage-ads-sdk'
-            version = '1.0.4'
+            version = '1.0.2'
         }
+
+//        repositories {
+//            maven {
+//                name = "GitHubPackages"
+//                url = uri("https://maven.pkg.github.com/yourusername/your-repo")
+//                credentials {
+//                    username = project.findProperty("gpr.user") as String ?: System.getenv("USERNAME")
+//                    password = project.findProperty("gpr.token") as String ?: System.getenv("TOKEN")
+//                }
+//            }
+//        }
     }
+
 }

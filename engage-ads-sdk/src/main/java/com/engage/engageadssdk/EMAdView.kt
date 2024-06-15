@@ -93,7 +93,7 @@ class EMAdView
                     isVisible = false
                 }
             },
-            viewModel.vastUrl,
+            emVastAd.vastUrl,
         )
     }
 

@@ -21,10 +21,6 @@ import kotlinx.coroutines.launch
 @UnstableApi
 internal class EMViewModel {
 
-    val vastUrl: String
-        get() {
-            return adRequester?.completeVastUrl ?: ""
-        }
     private var currentAdPlayer = 0
     private var adsList: List<EMVASTAd>? = null
     private var adRequester: EMAdRequester? = null

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="default_ads_url" translatable="false">https://s.adtelligent.com/demo</string>
+    <string name="default_ads_url" translatable="false">http://s.adtelligent.com/demo</string>
 </resources>
