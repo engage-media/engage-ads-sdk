@@ -89,7 +89,6 @@ class MainActivity : AppCompatActivity() {
                 // Ad completed
             }
         })
-        adView.loadAd("your_ad_unit_id")
     }
 }
 ```
