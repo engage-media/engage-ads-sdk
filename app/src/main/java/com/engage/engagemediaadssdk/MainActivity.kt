@@ -32,8 +32,12 @@ class MainActivity : ComponentActivity() {
         EMAdsModule.init(object:  EMAdsModuleInput {
             override val isGdprApproved: Boolean
                 get() = true
+            override val publisherId: String
+                get() = "Some Publisher ID"
             override val userId: String
                 get() = "1111"
+            override val channelId: String
+                get() = "Some Channel ID"
             override val context: Context
                 get() = applicationContext
 
