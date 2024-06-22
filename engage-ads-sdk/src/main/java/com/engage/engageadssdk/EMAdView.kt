@@ -78,7 +78,6 @@ class EMAdView
         }
     }
 
-
     fun loadAd() {
         viewModel.loadAd()
     }
