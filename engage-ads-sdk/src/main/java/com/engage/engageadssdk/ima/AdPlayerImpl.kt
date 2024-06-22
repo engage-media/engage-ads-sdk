@@ -18,13 +18,9 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.ima.ImaAdsLoader
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
-import androidx.media3.exoplayer.source.ads.AdsLoader
 import androidx.media3.exoplayer.source.ads.AdsMediaSource
 import androidx.media3.ui.PlayerView
-import com.engage.engageadssdk.EMAdPlayer
-import com.engage.engageadssdk.EMContentPlaybackListener
 import com.engage.engageadssdk.data.EMVASTAd
-import com.engage.engageadssdk.network.AdNetworkService
 
 internal class AdPlayerImpl(
     context: Context,
@@ -97,6 +93,8 @@ internal class AdPlayerImpl(
             override fun onPlaybackStateChanged(state: Int) {
                 if (state == ExoPlayer.STATE_ENDED) {
                     emContentPlaybackListener.onContentEnded()
+                } else if (state == ExoPlayer.STATE_READY) {
+                    emContentPlaybackListener.onContentStarted()
                 }
             }
         })

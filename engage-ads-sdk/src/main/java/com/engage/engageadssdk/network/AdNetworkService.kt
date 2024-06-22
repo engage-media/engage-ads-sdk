@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import com.engage.com.engage.engageadssdk.R
 import com.engage.engageadssdk.network.request.AdRequestBuilder
+import com.engage.engageadssdk.network.request.VastAdRequestDto
 import com.engage.engageadssdk.network.response.json.Bid
 import com.engage.engageadssdk.network.response.json.EMVASTResponseDto
 import com.engage.engageadssdk.network.response.json.SeatBid
@@ -48,14 +49,14 @@ internal class AdNetworkService(
 
     val defaultVastUrl: String
         get() {
-            return "${context.getString(R.string.default_ads_url)}?advid=1111&device_id=$deviceId&ua=$userAgent&app_name=$appName&app_bundle=com.aetn.history.watch&width=$screenWidth&height=${screenWidth * 9 / 16}"
+            return "${context.getString(R.string.default_ads_url)}?advid=1111&device_id=$deviceId&ua=$userAgent&app_name=$appName&app_bundle=${appBundle}&width=$screenWidth&height=${screenWidth * 9 / 16}"
         }
 
     // keep retry counter
     var retryCounter: Int = 0
 
     private val client = OkHttpClient.Builder().apply {
-        connectTimeout(150, TimeUnit.MILLISECONDS)  // Increased the timeout to 10 seconds
+        connectTimeout(150, TimeUnit.MILLISECONDS)
         writeTimeout(10, TimeUnit.SECONDS)
         readTimeout(10, TimeUnit.SECONDS)
     }.build()
@@ -74,48 +75,17 @@ internal class AdNetworkService(
         }
     }
 
-    // Get screen width as a val get()
     private val screenWidth: Int
         get() = context.resources.displayMetrics.widthPixels
 
     @WorkerThread
     suspend fun fetchVASTResponse(adTagUrl: String): VASTResponse {
         val requestBody = adRequestBuilder.createVastAdRequestDto()
-//        val requestBodyJson = requestBody.toJson()
-        val uri = Uri.parse(adTagUrl).buildUpon().apply {
-            appendQueryParameter("device_id", deviceId)
-            appendQueryParameter("ua", userAgent)
-            appendQueryParameter("appName",  "HGTV GO-Watch with TV Provider")//requestBody.app.name)
-            appendQueryParameter("appBundle", "com.hgtv.watcher") // requestBody.app.bundle)
-            appendQueryParameter("appURL", "https://play.google.com/store/apps/details?id=com.hgtv.watcher") // requestBody.app.bundle)
-            appendQueryParameter("width", requestBody.imp[0].video.w.toString())
-            appendQueryParameter("height", (requestBody.imp[0].video.h * 9 / 16).toString())
-            appendQueryParameter("us_privacy", if (requestBody.regs.gdpr == 1) "1" else "0")
-            appendQueryParameter("userId", requestBody.user.id)
-            appendQueryParameter("cb", requestBody.user.id)
-            appendQueryParameter("idfa", deviceId)
-            appendQueryParameter("adid", deviceId)
-            appendQueryParameter("country", "US")
-            appendQueryParameter("dnt", "0")
-        }
-        val exampleUri = Uri.parse("http://vast.engagemediatv.com/?channel=371d5f7f&publisher=f84c3545&width=1920&height=1080&appName=Draughts&appBundle=629651&appURL=https://channelstore.roku.com/en-ot/details/c62ff2d435ed8f79fd1108b4329205e2/draughts&country=US&ua=Roku/DVP-12.0%20(12.0.2.4083-G7)&idfa=7f2dcdc9-011e-5203-ad30-f5ee93e939ea&adid=7f2dcdc9-011e-5203-ad30-f5ee93e939ea&ip=75.12.91.197&lat=&lon=&us_privacy=0&cb=ce3636ca-5f13-4fe2-81e5-04a4daa453e2&dnt=0")
+        val uri = buildUrl(adTagUrl, requestBody)
         Log.d("AdNetworkService", "Calling URL: $uri")
         // log all uri parameters
         val builder: StringBuilder = StringBuilder("Keys:")
-        uri.build().apply {
-            queryParameterNames.forEach {
-                builder.append("$it: ${getQueryParameter(it)}")
-            }
-            Log.d("AdNetworkService", "regular calls keys ${builder.toString()}")
-        }
-        val exampleBuilder: StringBuilder = StringBuilder("Keys:")
         // log all uri parameters
-        exampleUri.apply {
-            queryParameterNames.forEach {
-                exampleBuilder.append("$it: ${getQueryParameter(it)}")
-            }
-            Log.d("AdNetworkService", "example keys ${exampleBuilder.toString()}")
-        }
         val request = Request.Builder().run {
             url(uri.build().toString())
             return@run build()
@@ -179,6 +149,41 @@ internal class AdNetworkService(
         } catch (e: Exception) {
             throw e
         }
+    }
+
+    private fun buildUrl(
+        adTagUrl: String,
+        requestBody: VastAdRequestDto
+    ): Uri.Builder {
+        val uri = Uri.parse(adTagUrl).buildUpon().apply {
+            appendQueryParameter("device_id", deviceId)
+            appendQueryParameter("ua", userAgent)
+            appendQueryParameter("appName", requestBody.app.name)//requestBody.app.name)
+            appendQueryParameter("appBundle", requestBody.app.bundle) // requestBody.app.bundle)
+            appendQueryParameter("appURL", requestBody.app.storeurl) // requestBody.app.bundle)
+            appendQueryParameter("width", requestBody.imp[0].video.w.toString())
+            appendQueryParameter("height", (requestBody.imp[0].video.h * 9 / 16).toString())
+            appendQueryParameter("us_privacy", if (requestBody.regs.gdpr == 1) "1" else "0")
+            appendQueryParameter("userId", requestBody.user.id)
+            appendQueryParameter("cb", requestBody.user.id)
+            appendQueryParameter("idfa", deviceId)
+            appendQueryParameter("adid", deviceId)
+            appendQueryParameter("country", "US")
+            appendQueryParameter("dnt", "0")
+            appendQueryParameter("lmt", "0")
+            appendQueryParameter("os", requestBody.device.os)
+            appendQueryParameter("ifa", requestBody.device.ifa)
+            appendQueryParameter("ifa_type", requestBody.device.ext.ifaType)
+            appendQueryParameter("model", requestBody.device.model)
+            appendQueryParameter("js", requestBody.device.js.toString())
+            appendQueryParameter("devicetype", requestBody.device.devicetype.toString())
+            appendQueryParameter("ip", requestBody.device.ip)
+            appendQueryParameter("secure", requestBody.imp[0].secure.toString())
+            appendQueryParameter("vast_version", "3.0")
+            appendQueryParameter("channelId", requestBody.app.channelId)
+            appendQueryParameter("publisherId", requestBody.app.publisherId)
+        }
+        return uri
     }
 }
 

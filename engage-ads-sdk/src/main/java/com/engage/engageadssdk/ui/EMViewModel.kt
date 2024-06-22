@@ -2,7 +2,7 @@ package com.engage.engageadssdk.ui
 
 import android.content.Context
 import androidx.media3.common.util.UnstableApi
-import com.engage.engageadssdk.EMAdRequester
+import com.engage.engageadssdk.network.EMAdRequester
 import com.engage.engageadssdk.EMVideoPlayerListener
 import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.data.EMVASTMidrollAd
@@ -82,7 +82,7 @@ internal class EMViewModel {
         loadAd()
     }
 
-    private fun showAd() {
+    fun showAd() {
         if (adsList?.isNotEmpty() == true) {
             val ad = adsList?.get(currentAdPlayer)
             scope.launch {
@@ -94,22 +94,21 @@ internal class EMViewModel {
     }
 
     @UnstableApi
-    private fun loadAd() {
+    fun loadAd() {
         if (_isLoadingAd.value) {
             return
         }
 
         _isLoadingAd.value = adsList?.isNotEmpty() == true
+        scope.launch(Dispatchers.IO) {
+            adRequester?.requestAds()
+        }
         scope.launch(Dispatchers.Main) {
             adRequester?.receivedAds?.collect { ads ->
                 if (ads.isNotEmpty()) {
                     adsList = ads
-                    showAd()
                 }
             }
-        }
-        scope.launch(Dispatchers.IO) {
-            adRequester?.requestAds()
         }
     }
 

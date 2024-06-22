@@ -72,7 +72,9 @@ class AdRequestBuilder(
         app: App = App(
             name = context.applicationInfo.loadLabel(context.packageManager).toString(),
             bundle = context.packageName,
-            storeurl = "https://play.google.com/store/apps/details?id=${context.packageName}",
+            storeurl = "http://www.amazon.com/gp/mas/dl/android?p=${context.packageName}",
+            channelId = emAdsModuleInput.channelId,
+            publisherId = emAdsModuleInput.publisherId
         ),
         device: Device = Device(
             ua = getUserAgent(context),

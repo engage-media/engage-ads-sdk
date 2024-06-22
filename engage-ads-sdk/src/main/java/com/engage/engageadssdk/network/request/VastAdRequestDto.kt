@@ -60,7 +60,9 @@ data class Device(
 data class App(
     val name: String,
     val bundle: String,
-    val storeurl: String
+    val storeurl: String,
+    val channelId: String,
+    val publisherId: String
 )
 
 data class User(

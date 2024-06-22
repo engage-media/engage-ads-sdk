@@ -2,7 +2,7 @@ package com.engage.engageadssdk.ima
 
 import android.util.Log
 import androidx.media3.common.util.UnstableApi
-import com.engage.engageadssdk.EMAdRequester
+import com.engage.engageadssdk.network.EMAdRequester
 import com.engage.engageadssdk.data.EMAdMapper
 import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.network.AdNetworkService

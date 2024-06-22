@@ -2,6 +2,7 @@ package com.engage.engageadssdk
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.FrameLayout
@@ -11,7 +12,10 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
 import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.ima.AdPlayerImpl
+import com.engage.engageadssdk.ima.EMAdPlayer
+import com.engage.engageadssdk.ima.EMContentPlaybackListener
 import com.engage.engageadssdk.ui.EMViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @UnstableApi
@@ -27,6 +31,11 @@ class EMAdView
     private val adLoadingProgressBar: ProgressBar =
         ProgressBar(context, null, android.R.attr.progressBarStyleLarge)
     private val adPlayer: EMAdPlayer
+    private var emAdStateListener: EMAdStateListener? = null
+
+    fun setAdStateListener(listener: EMAdStateListener) {
+        emAdStateListener = listener
+    }
 
     init {
         val vastUrl: String = fetchMetaData()
@@ -52,35 +61,67 @@ class EMAdView
         }
 
         adPlayer = AdPlayerImpl(context, playerView, progressBar)
-        viewModel.scope.launch {
+        bindCollectorsToViewModel(viewModel, viewModel.scope)
+        viewModel.initialize(vastUrl, playerView.context)
+    }
+
+    private fun bindCollectorsToViewModel(viewModel: EMViewModel, viewModelScope: CoroutineScope) {
+        viewModelScope.launch {
             viewModel.onAdDataReceived.collect {
                 showAd(it)
             }
         }
-        viewModel.scope.launch {
+        viewModelScope.launch {
             viewModel.isLoadingAd.collect {
                 adLoadingProgressBar.isVisible = it
             }
         }
-        viewModel.initialize(vastUrl, playerView.context)
     }
 
-    private fun fetchMetaData(name: String = "com.engage.vastUrl"): String {
-        return context.packageManager.getApplicationInfo(
-            context.packageName, PackageManager.GET_META_DATA
-        ).metaData.getString(name, "")
+
+    fun loadAd() {
+        viewModel.loadAd()
+    }
+
+    fun showAd() {
+        viewModel.showAd()
     }
 
     fun setAdEventListener(listener: EMVideoPlayerListener) {
         viewModel.eventListener = listener
     }
 
+    private fun fetchMetaData(): String {
+        val metaData = context.packageManager.getApplicationInfo(
+            context.packageName, PackageManager.GET_META_DATA
+        ).metaData
+        val areChannelOrPublisherIdSet = metaData.containsKey("com.engage.channelId") ||
+                metaData.containsKey("com.engage.publisherId")
+        if (areChannelOrPublisherIdSet) {
+            val url = Uri.parse("http://vast.engagemediatv.com/").buildUpon().apply {
+                val channelId = metaData.getString("com.engage.channelId", null)
+                if (!channelId.isNullOrEmpty()) {
+                    appendQueryParameter("channel", channelId)
+                }
+                val publisherId = metaData.getString("com.engage.publisherId", null)
+                if (!publisherId.isNullOrEmpty()) {
+                    appendQueryParameter("publisher", publisherId)
+                }
+            }
+            return url.toString()
+        } else {
+            val vastUrl = metaData.getString("com.engage.vastUrl", null) ?: run {
+                throw IllegalStateException("Vast URL is not set")
+            }
+            return vastUrl
+        }
+    }
+
+
     private fun showAd(emVastAd: EMVASTAd) {
         if (viewModel.isLoadingAd.value) {
             throw IllegalStateException("Ad is still loading")
         }
-
-        isVisible = true
 
         adPlayer.playAd(
             emVastAd,
@@ -90,7 +131,11 @@ class EMAdView
                 }
 
                 override fun onContentEnded() {
-                    isVisible = false
+                    emAdStateListener?.onAdCompleted()
+                }
+
+                override fun onContentStarted() {
+                    emAdStateListener?.onAdStarted()
                 }
             },
             emVastAd.vastUrl,
