@@ -90,6 +90,8 @@ internal class EMViewModel {
                     _onAdDataReceived.send(it)
                 }
             }
+        } else {
+            error("No ads to show")
         }
     }
 
@@ -106,7 +108,7 @@ internal class EMViewModel {
         scope.launch(Dispatchers.Main) {
             adRequester?.receivedAds?.collect { ads ->
                 if (ads.isNotEmpty()) {
-                    adsList = ads
+                    _onAdDataReceived.send(ads[0])
                 }
             }
         }

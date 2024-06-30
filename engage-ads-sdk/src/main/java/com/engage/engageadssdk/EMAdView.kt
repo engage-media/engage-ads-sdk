@@ -24,6 +24,7 @@ class EMAdView
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
+    private var isShowAdCalled: Boolean = false
     private val viewModel: EMViewModel = EMViewModel()
     private val playerView: PlayerView
     private val progressBar: ProgressBar =
@@ -32,9 +33,14 @@ class EMAdView
         ProgressBar(context, null, android.R.attr.progressBarStyleLarge)
     private val adPlayer: EMAdPlayer
     private var emAdStateListener: EMAdStateListener? = null
+    private var emAdEMClientListener: EMClientListener? = null
 
     fun setAdStateListener(listener: EMAdStateListener) {
         emAdStateListener = listener
+    }
+
+    fun setClientListener(listener: EMClientListener) {
+        emAdEMClientListener = listener
     }
 
     init {
@@ -68,7 +74,11 @@ class EMAdView
     private fun bindCollectorsToViewModel(viewModel: EMViewModel, viewModelScope: CoroutineScope) {
         viewModelScope.launch {
             viewModel.onAdDataReceived.collect {
-                showAd(it)
+                emAdEMClientListener?.onAdsLoaded()
+                if (isShowAdCalled) {
+                    showAd()
+                    isShowAdCalled = false
+                }
             }
         }
         viewModelScope.launch {
@@ -83,7 +93,12 @@ class EMAdView
     }
 
     fun showAd() {
-        viewModel.showAd()
+        try {
+            viewModel.showAd()
+        } catch(e: IllegalStateException) {
+            // wait until ad is loaded then showAd
+            isShowAdCalled = true
+        }
     }
 
     fun setAdEventListener(listener: EMVideoPlayerListener) {
@@ -131,10 +146,12 @@ class EMAdView
 
                 override fun onContentEnded() {
                     emAdStateListener?.onAdCompleted()
+                    emAdEMClientListener?.onAdCompleted()
                 }
 
                 override fun onContentStarted() {
                     emAdStateListener?.onAdStarted()
+                    emAdEMClientListener?.onAdStarted()
                 }
             },
             emVastAd.vastUrl,
