@@ -6,7 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.WorkerThread
-import com.engage.com.engage.engageadssdk.R
+import com.engage.engageadssdk.R
 import com.engage.engageadssdk.network.request.AdRequestBuilder
 import com.engage.engageadssdk.network.request.VastAdRequestDto
 import com.engage.engageadssdk.network.response.json.Bid
