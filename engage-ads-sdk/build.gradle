@@ -7,7 +7,7 @@ plugins {
 apply plugin: 'signing'
 
 android {
-    namespace 'com.engage.com.engage.engageadssdk'
+    namespace 'com.engage.engageadssdk'
     compileSdk 34
 
     defaultConfig {
@@ -112,7 +112,7 @@ afterEvaluate {
         publishing.publications.create(variant.name, MavenPublication) {
             groupId = 'com.engage.engageadssdk'
             artifactId = 'engage-ads-sdk'
-            version = '1.0.5'
+            version = '1.0.6'
         }
 
 //        repositories {
