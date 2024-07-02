@@ -107,6 +107,7 @@ internal class EMViewModel {
         }
         scope.launch(Dispatchers.Main) {
             adRequester?.receivedAds?.collect { ads ->
+                adsList = ads
                 if (ads.isNotEmpty()) {
                     _onAdDataReceived.send(ads[0])
                 }
