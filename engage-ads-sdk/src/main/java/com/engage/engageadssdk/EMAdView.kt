@@ -14,6 +14,7 @@ import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.ima.AdPlayerImpl
 import com.engage.engageadssdk.ima.EMAdPlayer
 import com.engage.engageadssdk.ima.EMContentPlaybackListener
+import com.engage.engageadssdk.module.EMAdsModule
 import com.engage.engageadssdk.ui.EMViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -95,7 +96,7 @@ class EMAdView
     fun showAd() {
         try {
             viewModel.showAd()
-        } catch(e: IllegalStateException) {
+        } catch (e: IllegalStateException) {
             // wait until ad is loaded then showAd
             isShowAdCalled = true
         }
@@ -110,14 +111,16 @@ class EMAdView
             context.packageName, PackageManager.GET_META_DATA
         ).metaData
         val areChannelOrPublisherIdSet = metaData.containsKey("com.engage.channelId") ||
-                metaData.containsKey("com.engage.publisherId")
+                metaData.containsKey("com.engage.publisherId") ||
+                EMAdsModule.getInstance().publisherId.isNotEmpty() ||
+                EMAdsModule.getInstance().channelId.isNotEmpty()
         if (areChannelOrPublisherIdSet) {
             val url = Uri.parse("http://vast.engagemediatv.com/").buildUpon().apply {
-                val channelId = metaData.getString("com.engage.channelId", null)
+                val channelId = metaData.getString("com.engage.channelId", EMAdsModule.getInstance().channelId)
                 if (!channelId.isNullOrEmpty()) {
                     appendQueryParameter("channel", channelId)
                 }
-                val publisherId = metaData.getString("com.engage.publisherId", null)
+                val publisherId = metaData.getString("com.engage.publisherId", EMAdsModule.getInstance().publisherId)
                 if (!publisherId.isNullOrEmpty()) {
                     appendQueryParameter("publisher", publisherId)
                 }
