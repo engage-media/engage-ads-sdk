@@ -77,7 +77,7 @@ class EMAdView
             viewModel.onAdDataReceived.collect {
                 emAdEMClientListener?.onAdsLoaded()
                 if (isShowAdCalled) {
-                    showAd()
+                    showAd(it)
                     isShowAdCalled = false
                 }
             }
