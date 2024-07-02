@@ -36,7 +36,7 @@ Add the dependency to your module-level `build.gradle` file:
 
 ```groovy
 dependencies {
-    implementation 'com.github.engage-media:engage-ads-sdk:v1.0.2'
+    implementation 'com.github.engage-media:engage-ads-sdk:v1.0.9-alpha'
 }
 ```
 
@@ -55,13 +55,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val adsModule = EMAdsModule(object : EMAdsModuleInput {
+        EMAdsModule.init(object : EMAdsModuleInput {
             override val isGdprApproved: Boolean
                 get() = true // or fetch from user settings
             override val userId: String
                 get() = "user123"
             override val context: Context
                 get() = this@MainActivity
+            override val channelId: String
+                get() = "someChannelId"
+            override val publisherId: String
+                get() = "somePublisherId"
         })
     }
 }
@@ -79,15 +83,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val adView = findViewById<EMAdView>(R.id.adView)
-        adView.setAdEventListener(object : EMVideoPlayerListener() {
-            override fun onAdStarted() {
-                // Ad started
+        val adView: EMAdView = findViewById<EMAdView>(R.id.adView)
+        adView.setClientListener(object : EMAdClientListener {
+            override fun onAdLoaded() {
+                // Ad loaded successfully
             }
 
-            override fun onAdCompleted() {
-                // Ad completed
+            override fun onAdFailedToLoad(error: String) {
+                // Ad failed to load
             }
+            // more implementation
         })
     }
 }

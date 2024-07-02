@@ -63,7 +63,7 @@ dependencies {
     debugImplementation libs.androidx.ui.test.manifest
 //    implementation project(':engage-ads-sdk')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'com.github.engage-media:engage-ads-sdk:1.0.7-alpha'
+    implementation 'com.github.engage-media:engage-ads-sdk:1.0.9-alpha'
 
 
 }
