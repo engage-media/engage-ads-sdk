@@ -1,5 +1,6 @@
 package com.engage.engageadssdk.ima
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Handler
@@ -22,6 +23,7 @@ import androidx.media3.exoplayer.source.ads.AdsMediaSource
 import androidx.media3.ui.PlayerView
 import com.engage.engageadssdk.data.EMVASTAd
 
+@SuppressLint("UnsafeOptInUsageError")
 internal class AdPlayerImpl(
     context: Context,
     private val playerView: PlayerView,
@@ -32,6 +34,7 @@ internal class AdPlayerImpl(
             DefaultMediaSourceFactory(context).setLocalAdInsertionComponents({
                 imaAdsLoader
             }, playerView)
+
         setMediaSourceFactory(mediaSourceFactory)
         build()
     }
@@ -47,6 +50,8 @@ internal class AdPlayerImpl(
     init {
         playerView.player = exoPlayer
         playerView.useController = false
+        playerView.controllerAutoShow = false
+        playerView.controllerShowTimeoutMs = 5000
     }
 
     private fun updateProgress() {

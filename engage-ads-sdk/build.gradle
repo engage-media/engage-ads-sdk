@@ -66,11 +66,9 @@ publishing {
         library(MavenPublication) {
             afterEvaluate {
 
-                from components.release
-
                 groupId = 'com.engage'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.12'
+                version = '1.0.13-alpha'
 
                 pom {
                     name = 'Engage Ads SDK'
@@ -114,7 +112,7 @@ publishing {
 //            artifactId = 'engage-ads-sdk'
 //            version = '1.0.11'
 //        }
-
+//
 //        repositories {
 //            maven {
 //                name = "GitHubPackages"
@@ -126,5 +124,5 @@ publishing {
 //            }
 //        }
 //    }
-
+//
 //}
