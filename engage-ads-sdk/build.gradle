@@ -67,7 +67,7 @@ publishing {
 
             groupId = 'com.github.engage-media'
             artifactId = 'engage-ads-sdk'
-            version = '1.0.14-alpha'
+            version = '1.0.15-alpha'
 
             // Include the AAR
             artifact("$buildDir/outputs/aar/engage-ads-sdk-release.aar")
