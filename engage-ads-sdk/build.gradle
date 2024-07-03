@@ -10,7 +10,6 @@ android {
     namespace 'com.engage.engageadssdk'
     compileSdk 34
 
-    versionName "1.0.14-alpha"
     defaultConfig {
         minSdk 24
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -65,7 +64,6 @@ dependencies {
 publishing {
     publications {
         release(MavenPublication) {
-            from components.release
 
             groupId = 'com.github.engage-media'
             artifactId = 'engage-ads-sdk'
