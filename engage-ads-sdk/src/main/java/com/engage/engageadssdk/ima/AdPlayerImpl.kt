@@ -39,6 +39,8 @@ internal class AdPlayerImpl(
 ) : EMAdPlayer, LifecycleEventObserver {
     private var emContentPlaybackListener: EMContentPlaybackListener? = null
 
+    private var _emVastAd: EMVASTAd? = null
+
     private val handler = Handler(Looper.getMainLooper())
     private val updateProgressAction = Runnable { updateProgress() }
 
@@ -76,12 +78,17 @@ internal class AdPlayerImpl(
         )
     }
 
+    override val emVastAd: EMVASTAd?
+        get() = _emVastAd
+
+
     @UnstableApi
     override fun playAd(
         emVastAd: EMVASTAd,
         emContentPlaybackListener: EMContentPlaybackListener,
         vastUrl: String
     ) {
+        _emVastAd = emVastAd
         val adsMediaSource = prepareMediaSource(emVastAd, vastUrl)
         exoPlayer.setMediaSource(adsMediaSource)
         exoPlayer.prepare()
@@ -101,6 +108,7 @@ internal class AdPlayerImpl(
         exoPlayer.playWhenReady = true
         this.emContentPlaybackListener = emContentPlaybackListener
         updateProgress()
+
     }
 
     override fun release() {

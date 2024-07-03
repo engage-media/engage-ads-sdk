@@ -83,15 +83,19 @@ internal class EMViewModel {
     }
 
     fun showAd() {
-        if (adsList?.isNotEmpty() == true) {
+        if (isLoadingAd.value) {
+            return // already loading, be patient - ignored
+        }
+        if (adsList?.isNotEmpty() == true && currentAdPlayer < (adsList?.size ?: 0)) {
             val ad = adsList?.get(currentAdPlayer)
             scope.launch {
                 ad?.let {
                     _onAdDataReceived.send(it)
+                    currentAdPlayer++
                 }
             }
         } else {
-            error("No ads to show")
+            loadAd()
         }
     }
 
@@ -101,15 +105,18 @@ internal class EMViewModel {
             return
         }
 
-        _isLoadingAd.value = adsList?.isNotEmpty() == true
+
+        _isLoadingAd.value = currentAdPlayer >= (adsList?.size ?: 0)
         scope.launch(Dispatchers.IO) {
             adRequester?.requestAds()
         }
         scope.launch(Dispatchers.Main) {
             adRequester?.receivedAds?.collect { ads ->
+                currentAdPlayer = 0
                 adsList = ads
+                _isLoadingAd.value = false
                 if (ads.isNotEmpty()) {
-                    _onAdDataReceived.send(ads[0])
+                    showAd()
                 }
             }
         }

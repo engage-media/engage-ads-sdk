@@ -12,4 +12,5 @@ internal interface EMAdPlayer {
     )
 
     fun release()
+    val emVastAd: EMVASTAd?
 }

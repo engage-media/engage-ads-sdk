@@ -2,6 +2,8 @@ package com.engage.engagemediaadssdk
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,11 +22,16 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 import com.engage.engageadssdk.DefaultVideoPlayerListener
 import com.engage.engageadssdk.EMAdView
+import com.engage.engageadssdk.EMClientListener
+import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.module.EMAdsModule
 import com.engage.engageadssdk.module.EMAdsModuleInput
 import com.engage.engagemediaadssdk.ui.theme.EngageMediaAdsSdkTheme
 
+@UnstableApi
 class MainActivity : ComponentActivity() {
+    private lateinit var adView: EMAdView
+
     @UnstableApi
     @OptIn(ExperimentalTvMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +77,27 @@ class MainActivity : ComponentActivity() {
                                         FrameLayout.LayoutParams.MATCH_PARENT
                                     )
                                     setAdEventListener(DefaultVideoPlayerListener(playerView))
+                                    adView = this
+                                    setClientListener(object: EMClientListener {
+                                        override fun onAdsLoaded() {
+
+                                        }
+
+                                        override fun onAdsLoadFailed() {
+                                            }
+
+                                        override fun onAdStarted() {
+                                            }
+
+                                        override fun onAdCompleted() {
+                                            adView.showAd()
+                                        }
+
+                                        override fun onAdTapped(ad: EMVASTAd?) {
+                                            //TODO("Not yet implemented")
+                                        }
+
+                                    })
                                 })
                             }
 

@@ -57,13 +57,14 @@ dependencies {
     implementation libs.androidx.activity.compose
     implementation libs.androidx.media3.exoplayer
     implementation libs.androidx.media3.ui
+    implementation project(':engage-ads-sdk')
     androidTestImplementation platform(libs.androidx.compose.bom)
     androidTestImplementation libs.androidx.ui.test.junit4
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
 //    implementation project(':engage-ads-sdk')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'com.github.engage-media:engage-ads-sdk:1.0.9-alpha'
+//    implementation 'com.github.engage-media:engage-ads-sdk:1.0.9-alpha'
 
 
 }

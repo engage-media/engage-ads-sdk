@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.AttributeSet
+import android.view.GestureDetector
 import android.view.Gravity
+import android.view.MotionEvent
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
@@ -25,6 +27,7 @@ class EMAdView
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
+    private var gestureDetector: GestureDetector
     private var isShowAdCalled: Boolean = false
     private val viewModel: EMViewModel = EMViewModel()
     private val playerView: PlayerView
@@ -48,6 +51,7 @@ class EMAdView
         val vastUrl: String = fetchMetaData()
         with(PlayerView(context)) {
             playerView = this
+            playerView.useController = false
             this@EMAdView.addView(playerView)
         }
         with(progressBar) {
@@ -70,16 +74,22 @@ class EMAdView
         adPlayer = AdPlayerImpl(context, playerView, progressBar)
         bindCollectorsToViewModel(viewModel, viewModel.scope)
         viewModel.initialize(vastUrl, playerView.context)
+        gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onSingleTapUp(e: MotionEvent): Boolean {
+                val ad = adPlayer.emVastAd
+                emAdEMClientListener?.onAdTapped(ad)
+                return true
+            }
+        })
+
     }
 
     private fun bindCollectorsToViewModel(viewModel: EMViewModel, viewModelScope: CoroutineScope) {
         viewModelScope.launch {
             viewModel.onAdDataReceived.collect {
                 emAdEMClientListener?.onAdsLoaded()
-                if (isShowAdCalled) {
-                    showAd(it)
-                    isShowAdCalled = false
-                }
+                showAd(it)
+                isShowAdCalled = false
             }
         }
         viewModelScope.launch {
@@ -116,11 +126,15 @@ class EMAdView
                 EMAdsModule.getInstance().channelId.isNotEmpty()
         if (areChannelOrPublisherIdSet) {
             val url = Uri.parse("http://vast.engagemediatv.com/").buildUpon().apply {
-                val channelId = metaData.getString("com.engage.channelId", EMAdsModule.getInstance().channelId)
+                val channelId =
+                    metaData.getString("com.engage.channelId", EMAdsModule.getInstance().channelId)
                 if (!channelId.isNullOrEmpty()) {
                     appendQueryParameter("channel", channelId)
                 }
-                val publisherId = metaData.getString("com.engage.publisherId", EMAdsModule.getInstance().publisherId)
+                val publisherId = metaData.getString(
+                    "com.engage.publisherId",
+                    EMAdsModule.getInstance().publisherId
+                )
                 if (!publisherId.isNullOrEmpty()) {
                     appendQueryParameter("publisher", publisherId)
                 }
