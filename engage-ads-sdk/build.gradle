@@ -70,7 +70,7 @@ publishing {
 
                 groupId = 'com.engage'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.0'
+                version = '1.0.12'
 
                 pom {
                     name = 'Engage Ads SDK'
@@ -107,13 +107,13 @@ publishing {
 }
 
 
-afterEvaluate {
-    android.libraryVariants.each { variant ->
-        publishing.publications.create(variant.name, MavenPublication) {
-            groupId = 'com.engage.engageadssdk'
-            artifactId = 'engage-ads-sdk'
-            version = '1.0.11'
-        }
+//afterEvaluate {
+//    android.libraryVariants.each { variant ->
+//        publishing.publications.create(variant.name, MavenPublication) {
+//            groupId = 'com.engage.engageadssdk'
+//            artifactId = 'engage-ads-sdk'
+//            version = '1.0.11'
+//        }
 
 //        repositories {
 //            maven {
@@ -125,6 +125,6 @@ afterEvaluate {
 //                }
 //            }
 //        }
-    }
+//    }
 
-}
+//}
