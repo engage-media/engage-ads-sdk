@@ -64,10 +64,22 @@ dependencies {
 
 afterEvaluate {
     android.libraryVariants.each { variant ->
+        def variantName = variant.name
         publishing.publications.create(variant.name, MavenPublication) {
             groupId = 'com.engage.engageadssdk'
             artifactId = 'engage-ads-sdk'
-            version = '1.0.17-alpha'
+            version = '1.0.17-alpha-' + variantName
+
+            from(components[variantName])
+
+            // Add the AAR artifact with a classifier to avoid conflicts
+            variant.outputs.all { output ->
+                if (output.outputFile.name.endsWith('.aar')) {
+                    artifact(output.outputFile) {
+                        classifier = variantName
+                    }
+                }
+            }
         }
     }
 }
