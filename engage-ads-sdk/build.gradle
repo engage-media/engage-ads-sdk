@@ -9,7 +9,6 @@ apply plugin: 'signing'
 android {
     namespace 'com.engage.engageadssdk'
     compileSdk 34
-    version = '1.0.16-alpha'
 
     defaultConfig {
         minSdk 24
@@ -62,94 +61,13 @@ dependencies {
 
 }
 
+
 afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                groupId = 'com.github.engage-media'
-                artifactId = 'engage-ads-sdk'
-                version = '1.0.16-alpha'
-
-                // Include the release AAR
-                artifact("$buildDir/outputs/aar/engage-ads-sdk-release.aar")
-
-                pom {
-                    name.set('Engage Ads SDK')
-                    description.set('SDK for integrating Engage Ads')
-                    url.set('https://github.com/engage-media/engage-ads-sdk')
-
-                    licenses {
-                        license {
-                            name.set('The Apache License, Version 2.0')
-                            url.set('http://www.apache.org/licenses/LICENSE-2.0.txt')
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id.set('engage-media')
-                            name.set('Engage Media')
-                            email.set('support@engage-media.com')
-                        }
-                    }
-
-                    scm {
-                        connection.set('scm:git:git://github.com/engage-media/engage-ads-sdk.git')
-                        developerConnection.set('scm:git:ssh://github.com:engage-media/engage-ads-sdk.git')
-                        url.set('https://github.com/engage-media/engage-ads-sdk')
-                    }
-                }
-            }
-            debug(MavenPublication) {
-                groupId = 'com.github.engage-media'
-                artifactId = 'engage-ads-sdk'
-                version = '1.0.16-alpha-debug'
-
-                // Include the debug AAR
-                artifact("$buildDir/outputs/aar/engage-ads-sdk-debug.aar")
-
-                pom {
-                    name.set('Engage Ads SDK')
-                    description.set('SDK for integrating Engage Ads')
-                    url.set('https://github.com/engage-media/engage-ads-sdk')
-
-                    licenses {
-                        license {
-                            name.set('The Apache License, Version 2.0')
-                            url.set('http://www.apache.org/licenses/LICENSE-2.0.txt')
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id.set('engage-media')
-                            name.set('Engage Media')
-                            email.set('support@engage-media.com')
-                        }
-                    }
-
-                    scm {
-                        connection.set('scm:git:git://github.com/engage-media/engage-ads-sdk.git')
-                        developerConnection.set('scm:git:ssh://github.com:engage-media/engage-ads-sdk.git')
-                        url.set('https://github.com/engage-media/engage-ads-sdk')
-                    }
-                }
-            }
+    android.libraryVariants.each { variant ->
+        publishing.publications.create(variant.name, MavenPublication) {
+            groupId = 'com.engage.engageadssdk'
+            artifactId = 'engage-ads-sdk'
+            version = '1.0.17-alpha'
         }
-
-        repositories {
-            maven {
-                name = "jitpack"
-                url = uri("https://jitpack.io")
-            }
-        }
-    }
-
-    tasks.named("publishReleasePublicationToMavenLocal") {
-        dependsOn tasks.named("bundleReleaseAar")
-    }
-
-    tasks.named("publishDebugPublicationToMavenLocal") {
-        dependsOn tasks.named("bundleDebugAar")
     }
 }
