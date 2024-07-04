@@ -4,14 +4,17 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
+import androidx.media3.ui.PlayerView.ControllerVisibilityListener
 import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.ima.AdPlayerImpl
 import com.engage.engageadssdk.ima.EMAdPlayer
@@ -52,6 +55,16 @@ class EMAdView
         with(PlayerView(context)) {
             playerView = this
             playerView.useController = false
+            playerView.useController = false
+            playerView.controllerAutoShow = false
+            playerView.controllerShowTimeoutMs = 5000
+            playerView.setControllerVisibilityListener(ControllerVisibilityListener { visibility ->
+                if (visibility == View.VISIBLE) {
+                    playerView.hideController()
+                    Log.d("PlayerViewConfig", "Hiding controller programmatically")
+                }
+            })
+            playerView.id = "emPlayerView".hashCode()
             this@EMAdView.addView(playerView)
         }
         with(progressBar) {

@@ -49,9 +49,6 @@ internal class AdPlayerImpl(
 
     init {
         playerView.player = exoPlayer
-        playerView.useController = false
-        playerView.controllerAutoShow = false
-        playerView.controllerShowTimeoutMs = 5000
     }
 
     private fun updateProgress() {
