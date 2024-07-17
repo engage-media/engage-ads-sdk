@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config xmlns:android="http://schemas.android.com/apk/res/android">
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">engagemediatv.com</domain>
-        <domain includeSubdomains="true">adtelligent.com</domain>
-    </domain-config>
-</network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <!-- Trust preinstalled CAs -->
+            <certificates src="system" />
+            <!-- Additionally trust user installed CAs for debugging -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config></network-security-config>

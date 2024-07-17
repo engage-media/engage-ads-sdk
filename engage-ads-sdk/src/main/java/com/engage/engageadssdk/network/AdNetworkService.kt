@@ -9,34 +9,30 @@ import androidx.annotation.WorkerThread
 import com.engage.engageadssdk.R
 import com.engage.engageadssdk.network.request.AdRequestBuilder
 import com.engage.engageadssdk.network.request.VastAdRequestDto
-import com.engage.engageadssdk.network.response.json.Bid
-import com.engage.engageadssdk.network.response.json.EMVASTResponseDto
-import com.engage.engageadssdk.network.response.json.SeatBid
 import com.engage.engageadssdk.parser.VASTParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.ConnectionSpec
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okio.Buffer
 import okio.IOException
-import java.net.URL
+import java.security.KeyManagementException
+import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+
 
 internal class AdNetworkService(
     private val context: Context,
@@ -46,6 +42,37 @@ internal class AdNetworkService(
     ),
     private val adRequestBuilder: AdRequestBuilder = AdRequestBuilder(sharedPreferences)
 ) {
+
+    init {
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+            }
+
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+            }
+
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return arrayOf()
+            }
+        }
+        )
+
+
+// Install the all-trusting trust manager
+        try {
+            val sslContext = SSLContext.getInstance("SSL")
+            sslContext.init(null, trustAllCerts, SecureRandom())
+            // Create an ssl socket factory with our all-trusting manager
+            val sslSocketFactory = sslContext.socketFactory
+
+            // Apply the socket factory to OkHttpClient or your specific network client
+        } catch (e: NoSuchAlgorithmException) {
+            e.printStackTrace()
+        } catch (e: KeyManagementException) {
+            e.printStackTrace()
+        }
+
+    }
 
     val defaultVastUrl: String
         get() {
@@ -81,16 +108,14 @@ internal class AdNetworkService(
     @WorkerThread
     suspend fun fetchVASTResponse(adTagUrl: String): VASTResponse {
         val requestBody = adRequestBuilder.createVastAdRequestDto()
-        val uri = buildUrl(adTagUrl, requestBody)
+        val uri = buildUrl("https://vast.engagemediatv.com/?channel=62570352&publisher=a8ce40dc&device_id=60c73055-1aab-497c-ab2e-d077b1023b46&ua=sdk_google_atv_x86.Android%3A&appName=Muziq.Rocks%20-%20Meditation%20and%20Relaxation&appBundle=com.fireappbuilder.android.MuziqRocks&appURL=http%3A%2F%2Fwww.amazon.com%2Fgp%2Fmas%2Fdl%2Fandroid%3Fp%3Dcom.fireappbuilder.android.MuziqRocks&width=1920&height=607&us_privacy=0&userId=&cb=&idfa=60c73055-1aab-497c-ab2e-d077b1023b46&adid=60c73055-1aab-497c-ab2e-d077b1023b46&country=US&dnt=0&lmt=0&os=10&ifa=6f849054-8185-4ca4-aca8-7a8e5bfa0392&ifa_type=idfa&model=sdk_google_atv_x86&js=1&devicetype=3&ip=fe80%3A%3A15%3Ab2ff%3Afe00%3A0%25wlan0&secure=1&vast_version=3.0&channelId=62570352&publisherId=1076", requestBody)
         Log.d("AdNetworkService", "Calling URL: $uri")
-        // log all uri parameters
-        val builder: StringBuilder = StringBuilder("Keys:")
-        // log all uri parameters
         val request = Request.Builder().run {
             url(uri.build().toString())
             return@run build()
         }
 
+        // Create a trust manager that does not validate certificate chains
         Log.d("AdNetworkService", "Calling Request: $request")
 
         val result = CoroutineScope(Dispatchers.IO).async {

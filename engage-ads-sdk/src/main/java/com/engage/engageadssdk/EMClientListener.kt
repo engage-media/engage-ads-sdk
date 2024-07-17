@@ -8,4 +8,5 @@ interface EMClientListener {
     fun onAdStarted()
     fun onAdCompleted()
     fun onAdTapped(ad: EMVASTAd?)
+    fun onNoAdsLoaded()
 }

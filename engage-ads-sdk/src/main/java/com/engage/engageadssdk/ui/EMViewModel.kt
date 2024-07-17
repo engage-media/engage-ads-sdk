@@ -30,6 +30,9 @@ internal class EMViewModel {
     private val _onAdDataReceived: Channel<EMVASTAd> = Channel(Channel.CONFLATED)
     val onAdDataReceived: Flow<EMVASTAd>
         get() = _onAdDataReceived.receiveAsFlow()
+    private val _onNoAdsReceived: Channel<Unit> = Channel(Channel.CONFLATED)
+    val onNoAdsReceived: Flow<Unit>
+        get() = _onNoAdsReceived.receiveAsFlow()
 
     private val _isLoadingAd: MutableStateFlow<Boolean> =
         MutableStateFlow(false)
@@ -112,12 +115,14 @@ internal class EMViewModel {
         }
         scope.launch(Dispatchers.Main) {
             adRequester?.receivedAds?.collect { ads ->
+                _isLoadingAd.value = false
+                if (ads.isEmpty()) {
+                    _onNoAdsReceived.send(Unit)
+                    return@collect
+                }
                 currentAdPlayer = 0
                 adsList = ads
-                _isLoadingAd.value = false
-                if (ads.isNotEmpty()) {
-                    showAd()
-                }
+                showAd()
             }
         }
     }

@@ -8,6 +8,9 @@ class EMAdsModule(private val emAdsModuleInput: EMAdsModuleInput) :
     companion object {
         private var instance: EMAdsModule? = null
 
+        val isInitialized: Boolean
+            get() = instance != null
+
         @JvmStatic
         fun getInstance(): EMAdsModule {
             if (instance == null) {

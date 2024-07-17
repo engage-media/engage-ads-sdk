@@ -39,12 +39,7 @@ class EMAdView
     private val adLoadingProgressBar: ProgressBar =
         ProgressBar(context, null, android.R.attr.progressBarStyleLarge)
     private val adPlayer: EMAdPlayer
-    private var emAdStateListener: EMAdStateListener? = null
     private var emAdEMClientListener: EMClientListener? = null
-
-    fun setAdStateListener(listener: EMAdStateListener) {
-        emAdStateListener = listener
-    }
 
     fun setClientListener(listener: EMClientListener) {
         emAdEMClientListener = listener
@@ -103,6 +98,11 @@ class EMAdView
                 emAdEMClientListener?.onAdsLoaded()
                 showAd(it)
                 isShowAdCalled = false
+            }
+        }
+        viewModelScope.launch {
+            viewModel.onNoAdsReceived.collect {
+                emAdEMClientListener?.onNoAdsLoaded()
             }
         }
         viewModelScope.launch {
@@ -175,12 +175,10 @@ class EMAdView
                 }
 
                 override fun onContentEnded() {
-                    emAdStateListener?.onAdCompleted()
                     emAdEMClientListener?.onAdCompleted()
                 }
 
                 override fun onContentStarted() {
-                    emAdStateListener?.onAdStarted()
                     emAdEMClientListener?.onAdStarted()
                 }
             },
