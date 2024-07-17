@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -95,6 +96,11 @@ class MainActivity : ComponentActivity() {
 
                                         override fun onAdTapped(ad: EMVASTAd?) {
                                             //TODO("Not yet implemented")
+                                        }
+
+                                        override fun onNoAdsLoaded() {
+                                            // log
+                                            Log.d("MainActivity", "No ads loaded")
                                         }
 
                                     })

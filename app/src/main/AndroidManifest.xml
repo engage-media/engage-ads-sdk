@@ -26,13 +26,8 @@
             android:name="com.engage.vastUrl"
             android:value="http://vast.engagemediatv.com/?channel=62570352&amp;publisher=a8ce40dc" />
 
-        <meta-data
-            android:name="com.engage.publisherId"
-            android:value="a8ce40dc" />
-
-        <meta-data
-            android:name="com.engage.channelId"
-            android:value="62570352" />
+        <meta-data android:name="com.engage.publisherId" android:value="a8ce40dc" />
+        <meta-data android:name="com.engage.channelId" android:value="62570352" />
 
         <activity
             android:name=".MainActivity"
