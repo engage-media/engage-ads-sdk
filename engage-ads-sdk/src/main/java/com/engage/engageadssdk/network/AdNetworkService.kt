@@ -108,7 +108,7 @@ internal class AdNetworkService(
     @WorkerThread
     suspend fun fetchVASTResponse(adTagUrl: String): VASTResponse {
         val requestBody = adRequestBuilder.createVastAdRequestDto()
-        val uri = buildUrl("https://vast.engagemediatv.com/?channel=62570352&publisher=a8ce40dc&device_id=60c73055-1aab-497c-ab2e-d077b1023b46&ua=sdk_google_atv_x86.Android%3A&appName=Muziq.Rocks%20-%20Meditation%20and%20Relaxation&appBundle=com.fireappbuilder.android.MuziqRocks&appURL=http%3A%2F%2Fwww.amazon.com%2Fgp%2Fmas%2Fdl%2Fandroid%3Fp%3Dcom.fireappbuilder.android.MuziqRocks&width=1920&height=607&us_privacy=0&userId=&cb=&idfa=60c73055-1aab-497c-ab2e-d077b1023b46&adid=60c73055-1aab-497c-ab2e-d077b1023b46&country=US&dnt=0&lmt=0&os=10&ifa=6f849054-8185-4ca4-aca8-7a8e5bfa0392&ifa_type=idfa&model=sdk_google_atv_x86&js=1&devicetype=3&ip=fe80%3A%3A15%3Ab2ff%3Afe00%3A0%25wlan0&secure=1&vast_version=3.0&channelId=62570352&publisherId=1076", requestBody)
+        val uri = buildUrl(adTagUrl, requestBody)
         Log.d("AdNetworkService", "Calling URL: $uri")
         val request = Request.Builder().run {
             url(uri.build().toString())
