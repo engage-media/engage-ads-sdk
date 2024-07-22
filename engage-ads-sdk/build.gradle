@@ -17,6 +17,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -68,7 +71,7 @@ afterEvaluate {
         publishing.publications.create(variant.name, MavenPublication) {
             groupId = 'com.engage.engageadssdk'
             artifactId = 'engage-ads-sdk'
-            version = '1.0.20-alpha-' + variantName
+            version = '1.0.22-alpha-' + variantName
 
             from(components[variantName])
 
