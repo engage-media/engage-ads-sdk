@@ -2,11 +2,13 @@ package com.engage.engageadssdk.ima
 
 import android.util.Log
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.BuildConfig
 import com.engage.engageadssdk.network.EMAdRequester
 import com.engage.engageadssdk.data.EMAdMapper
 import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.network.AdNetworkService
 import com.engage.engageadssdk.network.EmptyVASTResponseException
+import com.engage.engageadssdk.network.VASTResponse
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -35,10 +37,14 @@ internal class AdRequesterImpl(
         val result = try {
             adNetworkService.fetchVASTResponse(vastUrl)
         } catch (e: EmptyVASTResponseException) {
-            adNetworkService.fetchVASTResponse(adNetworkService.defaultVastUrl)
+            VASTResponse()
         } catch (e: Exception) {
-            Log.e("AdRequesterImpl", "Something horrible happened")
-            adNetworkService.fetchVASTResponse(adNetworkService.defaultVastUrl)
+            if (BuildConfig.DEBUG) {
+                throw e
+            } else {
+                Log.e("AdRequesterImpl", "Error fetching VAST response", e)
+                VASTResponse()
+            }
         }
 
         val mappedResponse =

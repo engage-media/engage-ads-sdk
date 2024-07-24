@@ -74,11 +74,6 @@ internal class AdNetworkService(
 
     }
 
-    val defaultVastUrl: String
-        get() {
-            return "${context.getString(R.string.default_ads_url)}?advid=1111&device_id=$deviceId&ua=$userAgent&app_name=$appName&app_bundle=${appBundle}&width=$screenWidth&height=${screenWidth * 9 / 16}"
-        }
-
     // keep retry counter
     var retryCounter: Int = 0
 
@@ -88,7 +83,7 @@ internal class AdNetworkService(
         readTimeout(10, TimeUnit.SECONDS)
     }.build()
     private val deviceId: String = getOrCreateDeviceId()
-    private val userAgent: String = "${Build.MODEL}.Android:${Build.VERSION.BASE_OS}"
+    private val userAgent: String = "${Build.MODEL}.Android:${Build.VERSION.SDK_INT}"
     private val appName: String =
         context.applicationInfo.loadLabel(context.packageManager).toString()
     private val appBundle: String = context.packageName
@@ -142,13 +137,9 @@ internal class AdNetworkService(
                             if (retryCounter < 3) {
                                 retryCounter++
                                 client.newCall(request).enqueue(this)
-                            } else if (!response.request.url.toString()
-                                    .startsWith(defaultVastUrl)
-                            ) {
+                            } else {
                                 retryCounter = 0
                                 throw EmptyVASTResponseException()
-                            } else {
-                                error("Failed to fetch VAST response")
                             }
                         }
                     }
