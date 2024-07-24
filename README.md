@@ -1,24 +1,37 @@
-
 # Engage Ads SDK
 
-Engage Ads SDK is a comprehensive library designed to simplify the integration of advertisement functionality into your Android applications. It provides a range of features to manage ads and enhance user experience.
+Version: 1.0.24-alpha
 
-## Table of Contents
+## Overview
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [License](#license)
-- [Contributing](#contributing)
-- [Contact Information](#contact-information)
+Engage Ads SDK is a comprehensive solution designed to integrate video ads into Android applications seamlessly. This SDK supports various ad formats, including pre-roll, mid-roll, and post-roll ads, leveraging the VAST standard for video ads. It is built with Kotlin and is compatible with Java projects.
+
+## Features
+
+- Support for VAST 2.0, 3.0, and 4.0.
+- Pre-roll, Mid-roll, and Post-roll ad support.
+- Easy integration with ExoPlayer.
+- GDPR compliance support.
+- Customizable ad loading and interaction listeners.
+
+## Requirements
+
+- Android SDK version 21 (Lollipop) or higher.
+- Android Studio Koala | 2024.1.1 Patch 1 or later.
+- Kotlin version 1.9.0.
+- Gradle version 8.5.0.
 
 ## Installation
 
-To include Engage Ads SDK in your project, you can add it as a dependency from JitPack.
+Add the following dependencies to your `build.gradle` file:
 
-### Step 1: Add JitPack Repository
+```groovy
+dependencies {
+    implementation 'com.engage.engageadssdk:engage-ads-sdk:v1.0.24-alpha'
+}
+```
 
-Add the JitPack repository to your root `build.gradle` file:
+Ensure you have `mavenCentral()` in your project's repositories list:
 
 ```groovy
 allprojects {
@@ -30,113 +43,63 @@ allprojects {
 }
 ```
 
-### Step 2: Add Dependency
-
-Add the dependency to your module-level `build.gradle` file:
-
-```groovy
-dependencies {
-    implementation 'com.github.engage-media:engage-ads-sdk:v1.0.9-alpha'
-}
-```
-
 ## Usage
 
-### Step 1: Initialize the SDK
-
-In your `MainActivity.kt` (or equivalent), initialize the SDK:
+1. Initialize the SDK in your `Application` class or before you start loading ads:
 
 ```kotlin
-import com.engage.engageadssdk.EMAdsModule
-import com.engage.engageadssdk.EMAdsModuleInput
+EMAdsModule.init(object: EMAdsModuleInput {
+    override val isGdprApproved: Boolean = true
+    override val publisherId: String = "Your Publisher ID"
+    override val userId: String = "User ID"
+    override val channelId: String = "Channel ID"
+    override val context: Context = applicationContext
+})
+```
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+2. Create an `EMAdView` and set it up with your `Activity` or `Fragment`:
 
-        EMAdsModule.init(object : EMAdsModuleInput {
-            override val isGdprApproved: Boolean
-                get() = true // or fetch from user settings
-            override val userId: String
-                get() = "user123"
-            override val context: Context
-                get() = this@MainActivity
-            override val channelId: String
-                get() = "someChannelId"
-            override val publisherId: String
-                get() = "somePublisherId"
-        })
-    }
+```kotlin
+val adView = EMAdView(context).apply {
+    setAdEventListener(DefaultVideoPlayerListener(playerView))
+    setClientListener(object: EMClientListener {
+        override fun onAdsLoaded() {
+            // Ad loaded successfully
+        }
+
+        override fun onAdsLoadFailed() {
+            // Ad loading failed
+        }
+
+        override fun onAdStarted() {
+            // Ad started
+        }
+
+        override fun onAdCompleted() {
+            // Ad completed
+        }
+
+        override fun onAdTapped(ad: EMVASTAd?) {
+            // Ad tapped
+        }
+
+        override fun onNoAdsLoaded() {
+            // No ads loaded
+        }
+    })
 }
 ```
 
-### Step 2: Display an Ad
+3. Load and display ads according to your application's flow.
 
-Use `EMAdView` to display an ad:
+## Documentation
 
-```kotlin
-import com.engage.engageadssdk.EMAdView
-
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val adView: EMAdView = findViewById<EMAdView>(R.id.adView)
-        adView.setClientListener(object : EMAdClientListener {
-            override fun onAdLoaded() {
-                // Ad loaded successfully
-            }
-
-            override fun onAdFailedToLoad(error: String) {
-                // Ad failed to load
-            }
-            // more implementation
-        })
-    }
-}
-```
-
-Or alternatively, use the default:
-
-```kotlin
-import com.engage.engageadssdk.EMAdView
-
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val adView = findViewById<EMAdView>(R.id.adView)
-        adView.setAdEventListener(DefaultAdEventListener())
-    }
-}
-```
-
-### XML Layout
-
-Add the `EMAdView` to your XML layout:
-
-```xml
-<com.engage.engageadssdk.EMAdView
-    android:id="@+id/adView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
-```
-
-## Configuration
-
-You can configure various parameters of the Engage Ads SDK through the `EMAdsModuleInput` interface. Customize as needed for your application requirements.
-
-## License
-
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+For detailed documentation and additional usage examples, please refer to the [official documentation](#).
 
 ## Contributing
 
-We welcome contributions to enhance Engage Ads SDK. Please follow the guidelines outlined in the [CONTRIBUTING](CONTRIBUTING.md) file.
+We welcome contributions! Please submit any bugs, issues, or feature requests through the GitHub issue tracker.
 
-## Contact Information
+## License
 
-For any inquiries, please contact us at [info@engagemedia.com](mailto:info@engagemedia.com).
+Engage Ads SDK is licensed under the MIT License. See the LICENSE file for more details.
