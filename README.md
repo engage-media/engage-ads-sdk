@@ -59,6 +59,85 @@ EMAdsModule.init(object: EMAdsModuleInput {
 
 2. Create an `EMAdView` and set it up with your `Activity` or `Fragment`:
 
+### XML
+
+```xml
+<com.engage.engageadssdk.EMAdView
+    android:id="@+id/adView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+```
+and in your `Activity` or `Fragment`:
+```kotlin
+val adView = findViewById<EMAdView>(R.id.adView).apply {
+    setAdEventListener(DefaultVideoPlayerListener(playerView))
+    setClientListener(object: EMClientListener {
+        override fun onAdsLoaded() {
+            // Ad loaded successfully
+        }
+
+        override fun onAdsLoadFailed() {
+            // Ad loading failed
+        }
+
+        override fun onAdStarted() {
+            // Ad started
+        }
+
+        override fun onAdCompleted() {
+            // Ad completed
+        }
+
+        override fun onAdTapped(ad: EMVASTAd?) {
+            // Ad tapped
+        }
+
+        override fun onNoAdsLoaded() {
+            // No ads loaded
+        }
+    })
+}
+```
+### Jetpack Compose
+```kotlin
+@Composable
+fun AdViewComposable() {
+    AndroidView(
+        factory = { context ->
+            EMAdView(context).apply {
+                setAdEventListener(DefaultVideoPlayerListener(playerView))
+                setClientListener(object: EMClientListener {
+                    override fun onAdsLoaded() {
+                        // Ad loaded successfully
+                    }
+
+                    override fun onAdsLoadFailed() {
+                        // Ad loading failed
+                    }
+
+                    override fun onAdStarted() {
+                        // Ad started
+                    }
+
+                    override fun onAdCompleted() {
+                        // Ad completed
+                    }
+
+                    override fun onAdTapped(ad: EMVASTAd?) {
+                        // Ad tapped
+                    }
+
+                    override fun onNoAdsLoaded() {
+                        // No ads loaded
+                    }
+                })
+            }
+        },
+        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+    )
+}
+```
+### Simple Kotlin/Java Format
 ```kotlin
 val adView = EMAdView(context).apply {
     setAdEventListener(DefaultVideoPlayerListener(playerView))
@@ -89,17 +168,15 @@ val adView = EMAdView(context).apply {
     })
 }
 ```
+3. Load ads using the `EMAdView` instance (or let the SDK do it for you automatically):
 
-3. Load and display ads according to your application's flow.
+```kotlin
+adView.loadAd()
+```
 
-## Documentation
+# Contributing
+We welcome contributions to the Engage Ads SDK. To contribute, Please submit any bugs, issues, or feature requests through the GitHub issue tracker. 
 
-For detailed documentation and additional usage examples, please refer to the [official documentation](#).
-
-## Contributing
-
-We welcome contributions! Please submit any bugs, issues, or feature requests through the GitHub issue tracker.
-
-## License
-
+# License
 Engage Ads SDK is licensed under the MIT License. See the LICENSE file for more details.
+```
