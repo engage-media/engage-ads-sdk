@@ -9,12 +9,14 @@ class EMAdsModuleInputBuilder {
     private var context: Context? = null
     private var channelId: String? = null
     private var publisherId: String? = null
+    private var bundleId: String? = null
 
     fun isGdprApproved(isGdprApproved: Boolean) = apply { this.isGdprApproved = isGdprApproved }
     fun userId(userId: String) = apply { this.userId = userId }
     fun context(context: Context) = apply { this.context = context }
     fun channelId(channelId: String) = apply { this.channelId = channelId }
     fun publisherId(publisherId: String) = apply { this.publisherId = publisherId }
+    fun bundleId(bundleId: String) = apply { this.bundleId = bundleId }
 
     fun build(): EMAdsModuleInput {
         val builder = this
@@ -33,6 +35,9 @@ class EMAdsModuleInputBuilder {
                 get() = builder.publisherId ?: context.packageManager.getApplicationInfo(
                     context.packageName, PackageManager.GET_META_DATA
                 ).metaData.getString("com.engage.channelId", null)
+            override val bundleId: String
+                get() = builder.bundleId ?: context.packageName
+
         }
     }
 

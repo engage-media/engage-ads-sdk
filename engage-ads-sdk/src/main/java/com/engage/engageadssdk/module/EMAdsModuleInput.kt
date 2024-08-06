@@ -8,4 +8,5 @@ interface EMAdsModuleInput {
     val context: Context
     val channelId: String
     val publisherId: String
+    val bundleId: String?
 }

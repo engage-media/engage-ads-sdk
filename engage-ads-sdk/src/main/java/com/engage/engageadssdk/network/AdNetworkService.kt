@@ -84,9 +84,6 @@ internal class AdNetworkService(
     }.build()
     private val deviceId: String = getOrCreateDeviceId()
     private val userAgent: String = "${Build.MODEL}.Android:${Build.VERSION.SDK_INT}"
-    private val appName: String =
-        context.applicationInfo.loadLabel(context.packageManager).toString()
-    private val appBundle: String = context.packageName
 
     private fun getOrCreateDeviceId(): String {
         val sharedPrefs = sharedPreferences
@@ -196,8 +193,8 @@ internal class AdNetworkService(
             appendQueryParameter("ip", requestBody.device.ip)
             appendQueryParameter("secure", requestBody.imp[0].secure.toString())
             appendQueryParameter("vast_version", "3.0")
-            appendQueryParameter("channelId", requestBody.app.channelId)
-            appendQueryParameter("publisherId", requestBody.app.publisherId)
+            appendQueryParameter("channel", requestBody.app.channelId)
+            appendQueryParameter("publisher", requestBody.app.publisherId)
         }
         return uri
     }

@@ -2,6 +2,7 @@ package com.engage.engageadssdk.network.request
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import com.engage.engageadssdk.module.EMAdsModule
@@ -71,8 +72,15 @@ class AdRequestBuilder(
         ),
         app: App = App(
             name = context.applicationInfo.loadLabel(context.packageManager).toString(),
-            bundle = context.packageName,
-            storeurl = "http://www.amazon.com/gp/mas/dl/android?p=${context.packageName}",
+            bundle = context.packageManager.getApplicationInfo(
+                context.packageName, PackageManager.GET_META_DATA
+            ).metaData.getString("com.engage.bundleId") ?: emAdsModuleInput.bundleId
+            ?: context.packageName,
+            storeurl = context.packageManager.getApplicationInfo(
+                context.packageName, PackageManager.GET_META_DATA
+            ).metaData.getString("com.engage.bundleId")?.let {
+                "http://www.amazon.com/${context.applicationInfo.loadLabel(context.packageManager)}/dp/$it"
+            } ?: "https://play.google.com/store/apps/details?id=${context.packageName}",
             channelId = emAdsModuleInput.channelId,
             publisherId = emAdsModuleInput.publisherId
         ),
