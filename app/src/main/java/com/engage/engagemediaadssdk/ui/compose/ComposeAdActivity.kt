@@ -1,21 +1,21 @@
-package com.engage.engagemediaadssdk
+package com.engage.engagemediaadssdk.ui.compose
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.tv.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.isVisible
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
@@ -30,32 +30,21 @@ import com.engage.engageadssdk.module.EMAdsModuleInput
 import com.engage.engagemediaadssdk.ui.theme.EngageMediaAdsSdkTheme
 
 @UnstableApi
-class MainActivity : ComponentActivity() {
+class ComposeAdActivity : ComponentActivity() {
     private lateinit var adView: EMAdView
 
     @UnstableApi
     @OptIn(ExperimentalTvMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        EMAdsModule.init(object:  EMAdsModuleInput {
-            override val isGdprApproved: Boolean
-                get() = true
-            override val publisherId: String
-                get() = "Some Publisher ID"
-            override val userId: String
-                get() = "1111"
-            override val channelId: String
-                get() = "Some Channel ID"
-            override val context: Context
-                get() = applicationContext
-
-        })
         setContent {
             EngageMediaAdsSdkTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     shape = RectangleShape
                 ) {
+                    Text(text = "Content Goes here", modifier = Modifier.fillMaxSize().align(
+                        Alignment.Center))
                     AndroidView(
                         factory = { context ->
                             FrameLayout(context).apply {
@@ -81,17 +70,23 @@ class MainActivity : ComponentActivity() {
                                     adView = this
                                     setClientListener(object: EMClientListener {
                                         override fun onAdsLoaded() {
-
+                                            // log
+                                            Log.d("MainActivity", "Ads loaded")
+                                            Toast.makeText(this@ComposeAdActivity, "Ads loaded", Toast.LENGTH_SHORT).show()
+                                            adView.isVisible = true
                                         }
 
                                         override fun onAdsLoadFailed() {
                                             }
 
                                         override fun onAdStarted() {
-                                            }
+                                            Toast.makeText(this@ComposeAdActivity, "Ads Started", Toast.LENGTH_SHORT).show()
+                                            adView.isVisible = true
+                                        }
 
                                         override fun onAdCompleted() {
-                                            adView.showAd()
+                                            Toast.makeText(this@ComposeAdActivity, "Ad has completed", Toast.LENGTH_SHORT).show()
+                                            adView.isVisible = false
                                         }
 
                                         override fun onAdTapped(ad: EMVASTAd?) {
@@ -101,6 +96,8 @@ class MainActivity : ComponentActivity() {
                                         override fun onNoAdsLoaded() {
                                             // log
                                             Log.d("MainActivity", "No ads loaded")
+                                            Toast.makeText(this@ComposeAdActivity, "No ads loaded", Toast.LENGTH_SHORT).show()
+                                            adView.isVisible = false
                                         }
 
                                     })

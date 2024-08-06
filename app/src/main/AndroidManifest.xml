@@ -29,8 +29,7 @@
         <meta-data android:name="com.engage.publisherId" android:value="a8ce40dc" />
         <meta-data android:name="com.engage.channelId" android:value="62570352" />
 
-        <activity
-            android:name=".MainActivity"
+        <activity android:name=".ui.demo.DemoActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,6 +38,10 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.xml.XmlAdActivity" />
+        <activity android:name=".ui.native.KotlinAdActivity" />
+        <activity android:name=".ui.compose.ComposeAdActivity" />
+
     </application>
 
 </manifest>
