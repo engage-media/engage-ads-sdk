@@ -71,7 +71,7 @@ afterEvaluate {
         publishing.publications.create(variant.name, MavenPublication) {
             groupId = 'com.engage.engageadssdk'
             artifactId = 'engage-ads-sdk'
-            version = '1.0.24-alpha-' + variantName
+            version = '1.0.25-alpha-' + variantName
 
             from(components[variantName])
 
