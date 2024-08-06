@@ -24,6 +24,8 @@ class DemoActivity : AppCompatActivity() {
                 get() = true
             override val publisherId: String
                 get() = "Some Publisher ID"
+            override val bundleId: String?
+                get() = "Some Bundle Id"
             override val userId: String
                 get() = "1111"
             override val channelId: String

@@ -28,6 +28,7 @@
 
         <meta-data android:name="com.engage.publisherId" android:value="a8ce40dc" />
         <meta-data android:name="com.engage.channelId" android:value="62570352" />
+        <meta-data android:name="com.engage.bundleId" android:value="some_bundle_id" />
 
         <activity android:name=".ui.demo.DemoActivity"
             android:exported="true">
