@@ -51,7 +51,7 @@ data class Linear @JvmOverloads constructor(
 
 @Root(name = "Creative", strict = false)
 data class Creative @JvmOverloads constructor(
-    @field:Attribute(name = "offset", required = false,)
+    @field:Attribute(name = "offset", required = false)
     var Offset: String? = null,
     @field:Element(name = "Linear", required = false)
     var Linear: Linear? = null,
@@ -61,7 +61,7 @@ data class Creative @JvmOverloads constructor(
 
 @Root(name = "Creatives", strict = false)
 data class Creatives @JvmOverloads constructor(
-    @field:ElementList(required = false, inline = true, entry = "Creative", )
+    @field:ElementList(required = false, inline = true, entry = "Creative")
     var Creative: List<Creative>? = null
 )
 
@@ -71,29 +71,68 @@ data class InLine @JvmOverloads constructor(
     var AdSystem: String? = null,
     @field:Element(name = "AdTitle", required = false)
     var AdTitle: String? = null,
-    @field:Element(name = "Creatives", required = false,)
+    @field:Element(name = "Creatives", required = false)
     var Creatives: Creatives? = null,
 )
 
-@Root(name = "Ad", strict = false )
+@Root(name = "Ad", strict = false)
 class Ad @JvmOverloads constructor(
     @field:Element(name = "InLine", required = false)
     var InLine: InLine? = null,
     @field:Attribute(name = "id", required = false)
     var id: String? = null,
     var text: String? = null,
+    @field:Element(name = "Wrapper", required = false)
+    var wrapper: Wrapper? = null,
+)
+
+@Root(name = "Wrapper", strict = false)
+class Wrapper(
+    @field:Element(name = "AdSystem", required = false)
+    var AdSystem: AdSystem? = null,
+    @field:Element(name = "VASTAdTagURI", required = false)
+    var vastAdTagURI: VASTAdTagURI? = null,
+    @field:Element(name = "Error", required = false)
+    var error: String? = null,
+    @field:Element(name = "Creatives", required = false)
+    var creatives: Creatives? = null,
+    @field:Element(name = "Extensions", required = false)
+    var extensions: Extensions? = null,
+)
+
+@Root(name = "Impression", strict = false)
+class Impression(
+    @field:Text(data = true, required = false)
+    var text: String? = null
+)
+
+@Root(name = "VASTAdTagURI", strict = false)
+class VASTAdTagURI(
+    @field:Text(data = true, required = false)
+    var text: String? = null
+)
+
+@Root(name = "AdSystem", strict = false)
+class AdSystem(
+    @field:Text(data = true, required = false)
+    var text: String? = null,
+    @field:Attribute(name = "version", required = false)
+    var version: String? = null
 )
 
 @Root(name = "VAST", strict = false)
 data class VASTResponse @JvmOverloads constructor(
-    @field:Element(name = "Ad", required = false )
+    @field:Element(name = "Ad", required = false)
     var Ad: Ad? = null,
     @field:Attribute(name = "version", required = false)
     var version: Double = 0.0,
     @field:Element(name = "Extensions", required = false)
     var extensions: Extensions? = null,
+    @field:Element(name = "Error", required = false)
+    var error: String? = null,
 ) {
     val isEmpty: Boolean
-        get() = Ad == null
+        get() = Ad == null || Ad?.wrapper == null || Ad?.wrapper?.creatives == null || Ad?.wrapper?.creatives?.Creative?.isEmpty() == true
+                || Ad?.InLine == null || Ad?.InLine?.Creatives?.Creative?.isEmpty() == true
 }
 

@@ -13,6 +13,7 @@ import com.engage.engageadssdk.parser.VASTParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -148,7 +149,27 @@ internal class AdNetworkService(
                         Log.d("AdNetworkService", "Parsed response to POJO")
                         retryCounter = 0
                         if (vastResponse.isEmpty) {
+                            if (vastResponse.Ad?.wrapper?.vastAdTagURI?.text?.isEmpty() == false) {
+                                val newAdTagUrl = vastResponse.Ad?.wrapper?.vastAdTagURI?.text
+                                val result = async {
+                                    try {
+                                        val result = fetchVASTResponse(newAdTagUrl!!)
+                                        return@async result
+                                    } catch (e: Exception) {
+                                        throw e
+                                    }
+                                }
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    try {
+                                        cont.resume(result.await())
+                                    } catch (e: Exception) {
+                                        cont.resumeWithException(e)
+                                    }
+                                }
+                                return
+                            } else {
                             cont.resumeWithException(EmptyVASTResponseException())
+                                }
                         } else {
                             cont.resume(vastResponse)
                         }
