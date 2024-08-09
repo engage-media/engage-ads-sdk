@@ -84,22 +84,41 @@ afterEvaluate {
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.27-alpha'
+                version = '1.0.28-alpha'
 
                 artifact("${buildDir}/outputs/aar/${project.name}-release.aar") {
                     classifier = "release"
                 }
+                artifact(sourcesJarRelease) {
+                    classifier = "sources"
+                }
+                pom.withXml {
+                    asNode().appendNode('properties').with {
+                        appendNode('com.android.build.api.attributes.AgpVersionAttr', '8.5.1')
+                    }
+                }
+
             }
             create("debug", MavenPublication) {
                 from components.debug
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.26-alpha'
+                version = '1.0.28-alpha'
 
                 artifact("${buildDir}/outputs/aar/${project.name}-debug.aar") {
                     classifier = "debug"
                 }
+
+                artifact(sourcesJarRelease) {
+                    classifier = "sources"
+                }
+                pom.withXml {
+                    asNode().appendNode('properties').with {
+                        appendNode('com.android.build.api.attributes.AgpVersionAttr', '8.5.1')
+                    }
+                }
+
             }
         }
 
