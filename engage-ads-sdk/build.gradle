@@ -76,6 +76,7 @@ task sourcesJarDebug(type: Jar) {
     from android.sourceSets.main.java.srcDirs
 }
 
+
 afterEvaluate {
     publishing {
         publications {
@@ -84,7 +85,7 @@ afterEvaluate {
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.29-alpha'
+                version = '1.0.30-alpha'
 
                 artifact("${buildDir}/outputs/aar/${project.name}-release.aar") {
                     classifier = "release"
@@ -92,33 +93,33 @@ afterEvaluate {
                 artifact(sourcesJarRelease) {
                     classifier = "sources"
                 }
+
                 pom.withXml {
                     asNode().appendNode('properties').with {
                         appendNode('com.android.build.api.attributes.AgpVersionAttr', '8.5.1')
                     }
                 }
-
             }
+
             create("debug", MavenPublication) {
                 from components.debug
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.29-alpha'
+                version = '1.0.30-alpha'
 
                 artifact("${buildDir}/outputs/aar/${project.name}-debug.aar") {
                     classifier = "debug"
                 }
-
-                artifact(sourcesJarRelease) {
+                artifact(sourcesJarDebug) {
                     classifier = "sources"
                 }
+
                 pom.withXml {
                     asNode().appendNode('properties').with {
                         appendNode('com.android.build.api.attributes.AgpVersionAttr', '8.5.1')
                     }
                 }
-
             }
         }
 
