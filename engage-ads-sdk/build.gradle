@@ -64,24 +64,49 @@ dependencies {
 
 }
 
+// Task to generate sources JAR for release
+task sourcesJarRelease(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
+// Task to generate sources JAR for debug
+task sourcesJarDebug(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
 
 afterEvaluate {
-    android.libraryVariants.each { variant ->
-        def variantName = variant.name
-        publishing.publications.create(variant.name, MavenPublication) {
-            groupId = 'com.engage.engageadssdk'
-            artifactId = 'engage-ads-sdk'
-            version = '1.0.26-alpha-' + variantName
+    publishing {
+        publications {
+            create("release", MavenPublication) {
+                from components.release
 
-            from(components[variantName])
+                groupId = 'com.github.engage-media'
+                artifactId = 'engage-ads-sdk'
+                version = '1.0.27-alpha'
 
-            // Add the AAR artifact with a classifier to avoid conflicts
-            variant.outputs.all { output ->
-                if (output.outputFile.name.endsWith('.aar')) {
-                    artifact(output.outputFile) {
-                        classifier = variantName
-                    }
+                artifact("${buildDir}/outputs/aar/${project.name}-release.aar") {
+                    classifier = "release"
                 }
+            }
+            create("debug", MavenPublication) {
+                from components.debug
+
+                groupId = 'com.github.engage-media'
+                artifactId = 'engage-ads-sdk'
+                version = '1.0.26-alpha'
+
+                artifact("${buildDir}/outputs/aar/${project.name}-debug.aar") {
+                    classifier = "debug"
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                // JitPack repository URL
+                url = uri("https://jitpack.io")
             }
         }
     }

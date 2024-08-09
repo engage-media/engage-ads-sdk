@@ -1,6 +1,6 @@
 # Engage Ads SDK
 
-Version: 1.0.24-alpha
+Version: 1.0.26-alpha
 
 ## Overview
 
@@ -27,7 +27,7 @@ Add the following dependencies to your `build.gradle` file:
 
 ```groovy
 dependencies {
-    implementation 'com.engage.engageadssdk:engage-ads-sdk:v1.0.24-alpha'
+    implementation 'com.engage.engageadssdk:engage-ads-sdk:v1.0.27-alpha'
 }
 ```
 
