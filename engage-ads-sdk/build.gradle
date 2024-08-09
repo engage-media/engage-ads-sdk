@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.material
@@ -61,38 +60,21 @@ dependencies {
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation 'com.google.code.gson:gson:2.8.8'
-
-}
-
-// Task to generate sources JAR for release
-task sourcesJarRelease(type: Jar) {
-    archiveClassifier.set('sources')
-    from android.sourceSets.main.java.srcDirs
-}
-
-// Task to generate sources JAR for debug
-task sourcesJarDebug(type: Jar) {
-    archiveClassifier.set('sources')
-    from android.sourceSets.main.java.srcDirs
 }
 
 
 afterEvaluate {
     publishing {
         publications {
+            // Release publication
             create("release", MavenPublication) {
                 from components.release
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.30-alpha'
+                version = '1.0.31-alpha'
 
-                artifact("${buildDir}/outputs/aar/${project.name}-release.aar") {
-                    classifier = "release"
-                }
-                artifact(sourcesJarRelease) {
-                    classifier = "sources"
-                }
+                // Add the release sources JAR
 
                 pom.withXml {
                     asNode().appendNode('properties').with {
@@ -101,19 +83,15 @@ afterEvaluate {
                 }
             }
 
+            // Debug publication
             create("debug", MavenPublication) {
                 from components.debug
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.30-alpha'
+                version = '1.0.31-alpha'
 
-                artifact("${buildDir}/outputs/aar/${project.name}-debug.aar") {
-                    classifier = "debug"
-                }
-                artifact(sourcesJarDebug) {
-                    classifier = "sources"
-                }
+                // Add the debug sources JAR
 
                 pom.withXml {
                     asNode().appendNode('properties').with {
@@ -125,8 +103,7 @@ afterEvaluate {
 
         repositories {
             maven {
-                // JitPack repository URL
-                url = uri("https://jitpack.io")
+                url = uri("https://jitpack.io") // or "mavenLocal()"
             }
         }
     }
