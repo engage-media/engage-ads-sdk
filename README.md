@@ -1,6 +1,6 @@
 # Engage Ads SDK
 
-Version: 1.0.26-alpha
+Version: 1.0.32-alpha
 
 ## Overview
 
@@ -54,6 +54,8 @@ EMAdsModule.init(object: EMAdsModuleInput {
     override val userId: String = "User ID"
     override val channelId: String = "Channel ID"
     override val context: Context = applicationContext
+    override val isDebug: Boolean = true // To see debug ads set this to true
+    override val bundleId: String? = if (isAmazonTVApp()) "Your Bundle ID" else null
 })
 ```
 
