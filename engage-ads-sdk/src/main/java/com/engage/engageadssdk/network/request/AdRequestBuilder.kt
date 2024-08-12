@@ -72,17 +72,16 @@ class AdRequestBuilder(
         ),
         app: App = App(
             name = context.applicationInfo.loadLabel(context.packageManager).toString(),
-            bundle = context.packageManager.getApplicationInfo(
-                context.packageName, PackageManager.GET_META_DATA
-            ).metaData.getString("com.engage.bundleId") ?: emAdsModuleInput.bundleId
-            ?: context.packageName,
-            storeurl = context.packageManager.getApplicationInfo(
-                context.packageName, PackageManager.GET_META_DATA
-            ).metaData.getString("com.engage.bundleId")?.let {
-                "http://www.amazon.com/${context.applicationInfo.loadLabel(context.packageManager)}/dp/$it"
-            } ?: emAdsModuleInput.bundleId?.let {
-                "http://www.amazon.com/${context.applicationInfo.loadLabel(context.packageManager)}/dp/$it"
-            } ?: "https://play.google.com/store/apps/details?id=${context.packageName}",
+            bundle = if (emAdsModuleInput.bundleId != null && emAdsModuleInput.bundleId?.isNotEmpty() == true) {
+                emAdsModuleInput.bundleId!!
+            } else {
+                context.packageName
+            },
+            storeurl =  if (emAdsModuleInput.bundleId != null && emAdsModuleInput.bundleId?.isNotEmpty() == true) {
+                "http://www.amazon.com/${context.applicationInfo.loadLabel(context.packageManager)}/dp/$emAdsModuleInput.bundleId!!|"
+            } else {
+                "https://play.google.com/store/apps/details?id=${context.packageName}"
+            },
             channelId = emAdsModuleInput.channelId,
             publisherId = emAdsModuleInput.publisherId
         ),

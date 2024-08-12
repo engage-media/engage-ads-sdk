@@ -137,7 +137,7 @@ internal class AdNetworkService(
                                 client.newCall(request).enqueue(this)
                             } else {
                                 retryCounter = 0
-                                throw EmptyVASTResponseException()
+                                cont.resumeWithException(EmptyVASTResponseException())
                             }
                         }
                     }
@@ -169,7 +169,7 @@ internal class AdNetworkService(
                                 return
                             } else {
                             cont.resumeWithException(EmptyVASTResponseException())
-                                }
+                            }
                         } else {
                             cont.resume(vastResponse)
                         }

@@ -10,6 +10,7 @@ class EMAdsModuleInputBuilder {
     private var channelId: String? = null
     private var publisherId: String? = null
     private var bundleId: String? = null
+    private var isDebug: Boolean = false
 
     fun isGdprApproved(isGdprApproved: Boolean) = apply { this.isGdprApproved = isGdprApproved }
     fun userId(userId: String) = apply { this.userId = userId }
@@ -17,6 +18,7 @@ class EMAdsModuleInputBuilder {
     fun channelId(channelId: String) = apply { this.channelId = channelId }
     fun publisherId(publisherId: String) = apply { this.publisherId = publisherId }
     fun bundleId(bundleId: String) = apply { this.bundleId = bundleId }
+    fun isDebug(isDebug: Boolean) = apply { this.isDebug = isDebug }
 
     fun build(): EMAdsModuleInput {
         val builder = this
@@ -37,7 +39,8 @@ class EMAdsModuleInputBuilder {
                 ).metaData.getString("com.engage.channelId", null)
             override val bundleId: String
                 get() = builder.bundleId ?: context.packageName
-
+            override val isDebug: Boolean
+                get() = builder.isDebug
         }
     }
 

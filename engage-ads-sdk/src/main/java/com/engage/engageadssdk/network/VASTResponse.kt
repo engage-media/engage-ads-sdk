@@ -132,7 +132,7 @@ data class VASTResponse @JvmOverloads constructor(
     var error: String? = null,
 ) {
     val isEmpty: Boolean
-        get() = Ad == null || Ad?.wrapper == null || Ad?.wrapper?.creatives == null || Ad?.wrapper?.creatives?.Creative?.isEmpty() == true
-                || Ad?.InLine == null || Ad?.InLine?.Creatives?.Creative?.isEmpty() == true
+        get() = (Ad == null || Ad?.wrapper == null || Ad?.wrapper?.creatives == null || Ad?.wrapper?.creatives?.Creative?.isEmpty() == true
+                ) && (Ad?.InLine == null || Ad?.InLine?.Creatives?.Creative?.isEmpty() == true)
 }
 

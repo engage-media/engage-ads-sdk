@@ -9,4 +9,8 @@ interface EMAdsModuleInput {
     val channelId: String
     val publisherId: String
     val bundleId: String?
+    val isDebug: Boolean
+        get() {
+            return false
+        }
 }

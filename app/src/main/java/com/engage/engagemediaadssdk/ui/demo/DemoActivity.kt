@@ -32,7 +32,8 @@ class DemoActivity : AppCompatActivity() {
                 get() = "Some Channel ID"
             override val context: Context
                 get() = applicationContext
-
+            override val isDebug: Boolean
+                get() = true
         })
 
         findViewById<Button>(R.id.btnXmlAd).setOnClickListener {

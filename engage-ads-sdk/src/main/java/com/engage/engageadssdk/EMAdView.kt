@@ -130,35 +130,21 @@ class EMAdView
     }
 
     private fun fetchMetaData(): String {
-        val metaData = context.packageManager.getApplicationInfo(
-            context.packageName, PackageManager.GET_META_DATA
-        ).metaData
-        val areChannelOrPublisherIdSet = metaData.containsKey("com.engage.channelId") ||
-                metaData.containsKey("com.engage.publisherId") ||
-                EMAdsModule.getInstance().publisherId.isNotEmpty() ||
-                EMAdsModule.getInstance().channelId.isNotEmpty()
-        if (areChannelOrPublisherIdSet) {
-            val url = Uri.parse("http://vast.engagemediatv.com/").buildUpon().apply {
-                val channelId =
-                    metaData.getString("com.engage.channelId", EMAdsModule.getInstance().channelId)
-                if (!channelId.isNullOrEmpty()) {
-                    appendQueryParameter("channel", channelId)
-                }
-                val publisherId = metaData.getString(
-                    "com.engage.publisherId",
-                    EMAdsModule.getInstance().publisherId
-                )
-                if (!publisherId.isNullOrEmpty()) {
-                    appendQueryParameter("publisher", publisherId)
-                }
-            }
-            return url.toString()
+        val url: StringBuilder = StringBuilder(if (EMAdsModule.getInstance().isDebug) {
+            "http://s.adtelligent.com/demo?"
         } else {
-            val vastUrl = metaData.getString("com.engage.vastUrl", null) ?: run {
-                throw IllegalStateException("Vast URL is not set")
+            "http://vast.engagemediatv.com?"
+        })
+        return url.apply {
+            if (EMAdsModule.getInstance().publisherId.isNotEmpty()) {
+                append("publisher", EMAdsModule.getInstance().publisherId)
             }
-            return vastUrl
+
+            if (EMAdsModule.getInstance().channelId.isNotEmpty()) {
+                append("channel", EMAdsModule.getInstance().channelId)
+            }
         }
+            .toString()
     }
 
 
