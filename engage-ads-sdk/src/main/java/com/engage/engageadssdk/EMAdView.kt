@@ -130,21 +130,20 @@ class EMAdView
     }
 
     private fun fetchMetaData(): String {
-        val url: StringBuilder = StringBuilder(if (EMAdsModule.getInstance().isDebug) {
-            "http://s.adtelligent.com/demo?"
+        val url: Uri = Uri.parse(if (EMAdsModule.getInstance().isDebug) {
+            "https://s.adtelligent.com/demo"
         } else {
-            "http://vast.engagemediatv.com?"
+            "https://vast.engagemediatv.com"
         })
-        return url.apply {
+        return url.buildUpon().apply {
             if (EMAdsModule.getInstance().publisherId.isNotEmpty()) {
-                append("publisher", EMAdsModule.getInstance().publisherId)
+                appendQueryParameter("publisher", EMAdsModule.getInstance().publisherId)
             }
 
             if (EMAdsModule.getInstance().channelId.isNotEmpty()) {
-                append("channel", EMAdsModule.getInstance().channelId)
+                appendQueryParameter("channel", EMAdsModule.getInstance().channelId)
             }
-        }
-            .toString()
+        }.toString()
     }
 
 

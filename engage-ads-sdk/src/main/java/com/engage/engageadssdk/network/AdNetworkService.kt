@@ -43,38 +43,6 @@ internal class AdNetworkService(
     ),
     private val adRequestBuilder: AdRequestBuilder = AdRequestBuilder(sharedPreferences)
 ) {
-
-    init {
-        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
-            }
-
-            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
-            }
-
-            override fun getAcceptedIssuers(): Array<X509Certificate> {
-                return arrayOf()
-            }
-        }
-        )
-
-
-// Install the all-trusting trust manager
-        try {
-            val sslContext = SSLContext.getInstance("SSL")
-            sslContext.init(null, trustAllCerts, SecureRandom())
-            // Create an ssl socket factory with our all-trusting manager
-            val sslSocketFactory = sslContext.socketFactory
-
-            // Apply the socket factory to OkHttpClient or your specific network client
-        } catch (e: NoSuchAlgorithmException) {
-            e.printStackTrace()
-        } catch (e: KeyManagementException) {
-            e.printStackTrace()
-        }
-
-    }
-
     // keep retry counter
     var retryCounter: Int = 0
 
@@ -108,7 +76,6 @@ internal class AdNetworkService(
             return@run build()
         }
 
-        // Create a trust manager that does not validate certificate chains
         Log.d("AdNetworkService", "Calling Request: $request")
 
         val result = CoroutineScope(Dispatchers.IO).async {
