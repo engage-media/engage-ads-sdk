@@ -11,6 +11,7 @@ class EMAdsModuleInputBuilder {
     private var publisherId: String? = null
     private var bundleId: String? = null
     private var isDebug: Boolean = false
+    private var isAutoPlay: Boolean = true
 
     fun isGdprApproved(isGdprApproved: Boolean) = apply { this.isGdprApproved = isGdprApproved }
     fun userId(userId: String) = apply { this.userId = userId }
@@ -19,10 +20,13 @@ class EMAdsModuleInputBuilder {
     fun publisherId(publisherId: String) = apply { this.publisherId = publisherId }
     fun bundleId(bundleId: String) = apply { this.bundleId = bundleId }
     fun isDebug(isDebug: Boolean) = apply { this.isDebug = isDebug }
+    fun isAutoPlay(isAutoPlay: Boolean) = apply { this.isAutoPlay = isAutoPlay }
 
     fun build(): EMAdsModuleInput {
         val builder = this
         return object : EMAdsModuleInput {
+            override val isAutoPlay: Boolean
+                get() = builder.isAutoPlay
             override val isGdprApproved: Boolean
                 get() = builder.isGdprApproved
             override val userId: String
@@ -30,13 +34,9 @@ class EMAdsModuleInputBuilder {
             override val context: Context
                 get() = builder.context ?: throw IllegalStateException("Context is not set")
             override val channelId: String
-                get() = builder.channelId ?: context.packageManager.getApplicationInfo(
-                    context.packageName, PackageManager.GET_META_DATA
-                ).metaData.getString("com.engage.channelId", null)
+                get() = builder.channelId ?: throw IllegalStateException("Channel ID is not set")
             override val publisherId: String
-                get() = builder.publisherId ?: context.packageManager.getApplicationInfo(
-                    context.packageName, PackageManager.GET_META_DATA
-                ).metaData.getString("com.engage.channelId", null)
+                get() = builder.publisherId ?: throw IllegalStateException("Publisher ID is not set")
             override val bundleId: String
                 get() = builder.bundleId ?: context.packageName
             override val isDebug: Boolean

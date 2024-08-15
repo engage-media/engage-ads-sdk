@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.util.UnstableApi
 import com.engage.engageadssdk.module.EMAdsModule
 import com.engage.engageadssdk.module.EMAdsModuleInput
+import com.engage.engageadssdk.module.EMAdsModuleInputBuilder
 import com.engage.engagemediaadssdk.R
 import com.engage.engagemediaadssdk.ui.compose.ComposeAdActivity
 import com.engage.engagemediaadssdk.ui.native.KotlinAdActivity
@@ -19,22 +20,19 @@ class DemoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_demo)
-        EMAdsModule.init(object: EMAdsModuleInput {
-            override val isGdprApproved: Boolean
-                get() = true
-            override val publisherId: String
-                get() = "Some Publisher ID"
-            override val bundleId: String?
-                get() = "Some Bundle Id"
-            override val userId: String
-                get() = "1111"
-            override val channelId: String
-                get() = "Some Channel ID"
-            override val context: Context
-                get() = applicationContext
-            override val isDebug: Boolean
-                get() = true
-        })
+        EMAdsModule.init(
+            EMAdsModuleInputBuilder()
+                // Most of these fields are optional and do not have to be set
+                .channelId("Some Channel ID") // must be set
+                .publisherId("Some Publisher ID") // must be set
+                .bundleId("Some Bundle Id") // defaults to context.packageName, set if Amazon project
+                .context(applicationContext) // must be set
+                .isGdprApproved(true) // defaults to false
+                .isAutoPlay(true) // defaults to false
+                .userId("1111") // defaults to ""
+                .isDebug(true)
+                .build()
+        )
 
         findViewById<Button>(R.id.btnXmlAd).setOnClickListener {
             startActivity(Intent(this, XmlAdActivity::class.java))

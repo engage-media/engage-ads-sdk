@@ -7,6 +7,7 @@ import com.engage.engageadssdk.EMVideoPlayerListener
 import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.data.EMVASTMidrollAd
 import com.engage.engageadssdk.ima.AdRequesterImpl
+import com.engage.engageadssdk.module.EMAdsModule
 import com.engage.engageadssdk.network.AdNetworkService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @UnstableApi
-internal class EMViewModel {
+internal class EMViewModel(
+    private val isAutoplay : Boolean = EMAdsModule.getInstance().isAutoPlay
+) {
 
     private var currentAdPlayer = 0
     private var adsList: List<EMVASTAd>? = null
@@ -53,6 +56,9 @@ internal class EMViewModel {
         }
 
     private fun shouldPlayNextAd(progress: Int): Boolean {
+        if (isAutoplay) {
+            return false
+        }
         val localAdsList = adsList
         return if (localAdsList != null) {
             if (localAdsList.size <= 1) {
@@ -122,7 +128,9 @@ internal class EMViewModel {
                 }
                 currentAdPlayer = 0
                 adsList = ads
-                showAd()
+                if (isAutoplay) {
+                    showAd()
+                }
             }
         }
     }

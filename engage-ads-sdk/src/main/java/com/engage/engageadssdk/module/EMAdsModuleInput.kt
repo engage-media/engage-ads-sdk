@@ -3,6 +3,10 @@ package com.engage.engageadssdk.module
 import android.content.Context
 
 interface EMAdsModuleInput {
+    val isAutoPlay: Boolean
+        get() {
+        return false
+    }
     val isGdprApproved: Boolean
     val userId: String
     val context: Context
