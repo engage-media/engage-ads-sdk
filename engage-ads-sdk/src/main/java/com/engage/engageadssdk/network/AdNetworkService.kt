@@ -47,7 +47,7 @@ internal class AdNetworkService(
     var retryCounter: Int = 0
 
     private val client = OkHttpClient.Builder().apply {
-        connectTimeout(150, TimeUnit.MILLISECONDS)
+        connectTimeout(10, TimeUnit.SECONDS)
         writeTimeout(10, TimeUnit.SECONDS)
         readTimeout(10, TimeUnit.SECONDS)
     }.build()
