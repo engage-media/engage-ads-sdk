@@ -1,6 +1,6 @@
 # Engage Ads SDK
-
-Version: 1.0.32-alpha
+[![](https://jitpack.io/v/engage-media/engage-ads-sdk.svg)](https://jitpack.io/#engage-media/engage-ads-sdk)
+Version: 1.0.35-alpha
 
 ## Overview
 
@@ -27,7 +27,7 @@ Add the following dependencies to your `build.gradle` file:
 
 ```groovy
 dependencies {
-    implementation 'com.engage.engageadssdk:engage-ads-sdk:v1.0.27-alpha'
+    implementation 'com.engage.engageadssdk:engage-ads-sdk:v1.0.35-alpha'
 }
 ```
 
@@ -56,6 +56,7 @@ EMAdsModule.init(object: EMAdsModuleInput {
     override val context: Context = applicationContext
     override val isDebug: Boolean = true // To see debug ads set this to true
     override val bundleId: String? = if (isAmazonTVApp()) "Your Bundle ID" else null
+    override val  isAutoPlay: Boolean = true  // defaults to false
 })
 ```
 
