@@ -1,7 +1,6 @@
 package com.engage.engageadssdk
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.AttributeSet
 import android.util.Log
@@ -96,8 +95,11 @@ class EMAdView
         viewModelScope.launch {
             viewModel.onAdDataReceived.collect {
                 emAdEMClientListener?.onAdsLoaded()
+            }
+        }
+        viewModelScope.launch {
+            viewModel.nextAdFlow.collect {
                 showAd(it)
-                isShowAdCalled = false
             }
         }
         viewModelScope.launch {
@@ -118,7 +120,7 @@ class EMAdView
 
     fun showAd() {
         try {
-            viewModel.showAd()
+            viewModel.showNextAd()
         } catch (e: IllegalStateException) {
             // wait until ad is loaded then showAd
             isShowAdCalled = true

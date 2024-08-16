@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 @UnstableApi
 internal class EMViewModel(
-    private val isAutoplay : Boolean = EMAdsModule.getInstance().isAutoPlay
+    private val isAutoplay: Boolean = EMAdsModule.getInstance().isAutoPlay
 ) {
 
     private var currentAdPlayer = 0
@@ -30,12 +30,15 @@ internal class EMViewModel(
     private val job: Job = Job()
     val scope = CoroutineScope(Dispatchers.Main + job)
 
-    private val _onAdDataReceived: Channel<EMVASTAd> = Channel(Channel.CONFLATED)
-    val onAdDataReceived: Flow<EMVASTAd>
+    private val _onAdDataReceived: Channel<List<EMVASTAd>> = Channel(Channel.CONFLATED)
+    val onAdDataReceived: Flow<List<EMVASTAd>>
         get() = _onAdDataReceived.receiveAsFlow()
     private val _onNoAdsReceived: Channel<Unit> = Channel(Channel.CONFLATED)
     val onNoAdsReceived: Flow<Unit>
         get() = _onNoAdsReceived.receiveAsFlow()
+    private val _nextAdFlow = Channel<EMVASTAd>(Channel.CONFLATED)
+    val nextAdFlow: Flow<EMVASTAd>
+        get() = _nextAdFlow.receiveAsFlow()
 
     private val _isLoadingAd: MutableStateFlow<Boolean> =
         MutableStateFlow(false)
@@ -56,7 +59,7 @@ internal class EMViewModel(
         }
 
     private fun shouldPlayNextAd(progress: Int): Boolean {
-        if (isAutoplay) {
+        if (!isAutoplay) {
             return false
         }
         val localAdsList = adsList
@@ -65,14 +68,13 @@ internal class EMViewModel(
                 return false
                 // Preroll already played
             } else if (currentAdPlayer >= localAdsList.size - 1) {
-                showAd() // // Postroll
+                showNextAd() // // Postroll
                 return true
             } else {
                 // midroll ad
                 val ad = localAdsList[currentAdPlayer] as EMVASTMidrollAd
                 return if (ad.offset != null && ad.offset.time <= progress) {
-                    currentAdPlayer++
-                    showAd()
+                    showNextAd()
                     true
                 } else {
                     false
@@ -91,20 +93,22 @@ internal class EMViewModel(
         loadAd()
     }
 
-    fun showAd() {
+    internal fun showNextAd(): EMVASTAd? {
         if (isLoadingAd.value) {
-            return // already loading, be patient - ignored
+            return null // already loading, be patient - ignored
         }
         if (adsList?.isNotEmpty() == true && currentAdPlayer < (adsList?.size ?: 0)) {
             val ad = adsList?.get(currentAdPlayer)
             scope.launch {
                 ad?.let {
-                    _onAdDataReceived.send(it)
                     currentAdPlayer++
+                    _nextAdFlow.send(it)
                 }
             }
+            return ad
         } else {
             loadAd()
+            return null
         }
     }
 
@@ -114,7 +118,6 @@ internal class EMViewModel(
             return
         }
 
-
         _isLoadingAd.value = currentAdPlayer >= (adsList?.size ?: 0)
         scope.launch(Dispatchers.IO) {
             adRequester?.requestAds()
@@ -122,14 +125,15 @@ internal class EMViewModel(
         scope.launch(Dispatchers.Main) {
             adRequester?.receivedAds?.collect { ads ->
                 _isLoadingAd.value = false
+                currentAdPlayer = 0
+                adsList = ads
                 if (ads.isEmpty()) {
                     _onNoAdsReceived.send(Unit)
                     return@collect
                 }
-                currentAdPlayer = 0
-                adsList = ads
+                _onAdDataReceived.send(ads)
                 if (isAutoplay) {
-                    showAd()
+                    showNextAd()
                 }
             }
         }

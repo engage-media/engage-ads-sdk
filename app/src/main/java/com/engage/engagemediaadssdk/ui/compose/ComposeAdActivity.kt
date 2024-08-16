@@ -74,10 +74,16 @@ class ComposeAdActivity : ComponentActivity() {
                                             Log.d("MainActivity", "Ads loaded")
                                             Toast.makeText(this@ComposeAdActivity, "Ads loaded", Toast.LENGTH_SHORT).show()
                                             adView.isVisible = true
+                                            if (!EMAdsModule.getInstance().isAutoPlay) {
+                                                adView.showAd()
+                                            }
                                         }
 
                                         override fun onAdsLoadFailed() {
-                                            }
+                                            // toast
+                                            Toast.makeText(this@ComposeAdActivity, "Ads load failed", Toast.LENGTH_SHORT).show()
+                                            adView.isVisible = false
+                                        }
 
                                         override fun onAdStarted() {
                                             Toast.makeText(this@ComposeAdActivity, "Ads Started", Toast.LENGTH_SHORT).show()

@@ -3,7 +3,6 @@ package com.engage.engagemediaadssdk.ui.native
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +11,7 @@ import androidx.media3.common.util.UnstableApi
 import com.engage.engageadssdk.EMAdView
 import com.engage.engageadssdk.EMClientListener
 import com.engage.engageadssdk.data.EMVASTAd
+import com.engage.engageadssdk.module.EMAdsModule
 
 class KotlinAdActivity : AppCompatActivity() {
     @UnstableApi
@@ -24,8 +24,16 @@ class KotlinAdActivity : AppCompatActivity() {
         layout.addView(adView)
         adView.apply {
             setClientListener(object : EMClientListener {
-                override fun onAdsLoaded() {}
-                override fun onAdsLoadFailed() {}
+                override fun onAdsLoaded() {
+                    if (!EMAdsModule.getInstance().isAutoPlay) {
+                        showAd() // or showAd(ad) for a specific ad
+                    }
+                    adView.isVisible = true
+                }
+                override fun onAdsLoadFailed() {
+                    Toast.makeText(this@KotlinAdActivity, "Ad load failed", Toast.LENGTH_SHORT).show()
+                    adView.isVisible = false
+                }
                 override fun onAdStarted() {
                     // Ad has started
                     adView.isVisible = true
