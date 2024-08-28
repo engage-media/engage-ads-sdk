@@ -1,14 +1,5 @@
 package com.engage.engageadssdk.network.request
 
-import android.content.Context
-import android.os.Build
-import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
-import java.net.NetworkInterface
-import java.util.UUID
-
-
 data class Video(
     val mimes: List<String>,
     val protocols: List<Int>,
@@ -40,7 +31,7 @@ data class Geo(
 )
 
 data class DeviceExt(
-    @SerializedName("ifa_type") val ifaType: String
+    val ifaType: String
 )
 
 data class Device(
@@ -86,9 +77,5 @@ data class VastAdRequestDto(
 ) {
     companion object {
         const val TAG = "VastAdRequestDto"
-    }
-
-    fun toJson(): String {
-        return Gson().toJson(this)
     }
 }

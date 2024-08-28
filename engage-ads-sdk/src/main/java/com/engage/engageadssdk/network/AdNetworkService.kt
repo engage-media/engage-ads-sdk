@@ -6,33 +6,17 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.WorkerThread
-import com.engage.engageadssdk.R
 import com.engage.engageadssdk.network.request.AdRequestBuilder
 import com.engage.engageadssdk.network.request.VastAdRequestDto
-import com.engage.engageadssdk.parser.VASTParser
+import com.engage.engageadssdk.parser.parseVASTResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import okio.Buffer
-import okio.IOException
-import java.security.KeyManagementException
-import java.security.NoSuchAlgorithmException
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
+import kotlinx.coroutines.runBlocking
+import java.io.BufferedReader
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.UUID
-import java.util.concurrent.TimeUnit
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 
 internal class AdNetworkService(
@@ -46,11 +30,7 @@ internal class AdNetworkService(
     // keep retry counter
     var retryCounter: Int = 0
 
-    private val client = OkHttpClient.Builder().apply {
-        connectTimeout(10, TimeUnit.SECONDS)
-        writeTimeout(10, TimeUnit.SECONDS)
-        readTimeout(10, TimeUnit.SECONDS)
-    }.build()
+
     private val deviceId: String = getOrCreateDeviceId()
     private val userAgent: String = "${Build.MODEL}.Android:${Build.VERSION.SDK_INT}"
 
@@ -63,92 +43,71 @@ internal class AdNetworkService(
         }
     }
 
-    private val screenWidth: Int
-        get() = context.resources.displayMetrics.widthPixels
-
     @WorkerThread
-    suspend fun fetchVASTResponse(adTagUrl: String): VASTResponse {
-        val requestBody = adRequestBuilder.createVastAdRequestDto()
+    suspend fun fetchVASTResponse(
+        adTagUrl: String,
+        requestBody: VastAdRequestDto = adRequestBuilder.createVastAdRequestDto()
+    ): VASTResponse {
         val uri = buildUrl(adTagUrl, requestBody)
         Log.d("AdNetworkService", "Calling URL: $uri")
-        val request = Request.Builder().run {
-            url(uri.build().toString())
-            return@run build()
-        }
-
-        Log.d("AdNetworkService", "Calling Request: $request")
 
         val result = CoroutineScope(Dispatchers.IO).async {
-            val call = client.newCall(request)
-            suspendCoroutine { cont ->
-                call.enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        e.printStackTrace()  // Handle failure appropriately.
+            val url = URL(uri.build().toString())
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+
+            try {
+                val responseCode = connection.responseCode
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    val response =
+                        connection.inputStream.bufferedReader().use(BufferedReader::readText)
+                    parseNetworkResponse(response, requestBody)
+                } else {
+                    if (retryCounter < 3) {
+                        retryCounter++
+                        fetchVASTResponse(adTagUrl, requestBody)
+                    } else {
                         retryCounter = 0
-                        val copy = call.request().newBuilder().build()
-                        val buffer: Buffer = Buffer()
-                        copy.body?.writeTo(buffer)
-                        val bodyString = buffer.readUtf8()
-                        Log.d("AdNetworkService", "Request: $bodyString")
-                        cont.resumeWithException(e)
+                        throw EmptyVASTResponseException()
                     }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        val responseBody = response.body
-                        val stringBody = responseBody?.string()
-                        if (response.isSuccessful) {
-                            parseNetworkResponse(stringBody)
-                        } else {
-                            if (retryCounter < 3) {
-                                retryCounter++
-                                client.newCall(request).enqueue(this)
-                            } else {
-                                retryCounter = 0
-                                cont.resumeWithException(EmptyVASTResponseException())
-                            }
-                        }
-                    }
-
-                    private fun parseNetworkResponse(stringBody: String?) {
-                        Log.d("AdNetworkService", "Response: $stringBody")
-                        val vastResponse: VASTResponse =
-                            VASTParser().parseVASTResponse(stringBody)
-                        Log.d("AdNetworkService", "Parsed response to POJO")
-                        retryCounter = 0
-                        if (vastResponse.isEmpty) {
-                            if (vastResponse.Ad?.wrapper?.vastAdTagURI?.text?.isEmpty() == false) {
-                                val newAdTagUrl = vastResponse.Ad?.wrapper?.vastAdTagURI?.text
-                                val result = async {
-                                    try {
-                                        val result = fetchVASTResponse(newAdTagUrl!!)
-                                        return@async result
-                                    } catch (e: Exception) {
-                                        throw e
-                                    }
-                                }
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    try {
-                                        cont.resume(result.await())
-                                    } catch (e: Exception) {
-                                        cont.resumeWithException(e)
-                                    }
-                                }
-                                return
-                            } else {
-                            cont.resumeWithException(EmptyVASTResponseException())
-                            }
-                        } else {
-                            cont.resume(vastResponse)
-                        }
-                    }
-
-                })
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                retryCounter = 0
+                throw e
+            } finally {
+                connection.disconnect()
             }
         }
+
         return try {
             result.await()
         } catch (e: Exception) {
             throw e
+        }
+    }
+
+    private fun parseNetworkResponse(
+        response: String?,
+        requestBody: VastAdRequestDto
+    ): VASTResponse {
+        Log.d("AdNetworkService", "Response: $response")
+        val vastResponse: VASTResponse = parseVASTResponse(response)
+        Log.d("AdNetworkService", "Parsed response to POJO")
+        retryCounter = 0
+        if (vastResponse.isEmpty) {
+            if (vastResponse.ad?.wrapper?.vastAdTagURI?.text?.isNotEmpty() == true) {
+                val newAdTagUrl = vastResponse.ad?.wrapper?.vastAdTagURI?.text
+                return runBlocking {
+                    fetchVASTResponse(newAdTagUrl!!, requestBody)
+                }
+            } else {
+                throw EmptyVASTResponseException()
+            }
+        } else {
+            return vastResponse
         }
     }
 

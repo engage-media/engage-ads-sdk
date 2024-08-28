@@ -1,7 +1,7 @@
 package com.engage.engageadssdk.data
 
-import com.engage.engageadssdk.network.VASTResponse
 import com.engage.engageadssdk.network.MediaFile
+import com.engage.engageadssdk.network.VASTResponse
 import java.text.SimpleDateFormat
 
 object EMAdMapper {
@@ -10,10 +10,10 @@ object EMAdMapper {
         // Mapping VASTResponse to EMVASTAd based on the creatives and media files
         // The first creative is a PREROLL ad, otherwise it's a midroll ad based on the offset
         // the last ad is a POSTROLL ad
-        val adSystem = vastResponse.Ad?.InLine?.AdSystem
-        val adTitle = vastResponse.Ad?.InLine?.AdTitle
-        val adId = vastResponse.Ad?.id
-        val emVastAds = vastResponse.Ad?.InLine?.Creatives?.Creative?.map {
+        val adSystem = vastResponse.ad?.inLine?.adSystem
+        val adTitle = vastResponse.ad?.inLine?.adTitle
+        val adId = vastResponse.ad?.id
+        val emVastAds = vastResponse.ad?.inLine?.creatives?.creative?.map {
             when (it.sequence) {
                 1 -> EMVASTPreLoadAd(
                     adSystem = adSystem,
@@ -21,7 +21,7 @@ object EMAdMapper {
                     adMediaFiles = mapToEMVASTMediaFile(
                         adSystem,
                         adTitle,
-                        listOf(it.Linear?.MediaFiles?.MediaFile),
+                        listOf(it.linear?.mediaFiles?.mediaFile),
                         adId
                     ),
                     adId = adId,
@@ -30,14 +30,14 @@ object EMAdMapper {
                     vastUrl = vastUrl,
                 )
 
-                vastResponse.Ad?.InLine?.Creatives?.Creative?.size?.minus(1) -> {
+                vastResponse.ad?.inLine?.creatives?.creative?.size?.minus(1) -> {
                     EMVASTPostrollAd(
                         adSystem = adSystem,
                         adTitle = adTitle,
                         adMediaFiles = mapToEMVASTMediaFile(
                             adSystem,
                             adTitle,
-                            listOf(it.Linear?.MediaFiles?.MediaFile),
+                            listOf(it.linear?.mediaFiles?.mediaFile),
                             adId
                         ),
                         adId = adId,
@@ -48,13 +48,13 @@ object EMAdMapper {
                 }
 
                 else -> EMVASTMidrollAd(
-                    offset = SimpleDateFormat.getDateInstance().parse(it.Offset!!),
+                    offset = SimpleDateFormat.getDateInstance().parse(it.offset!!),
                     adSystem = adSystem,
                     adTitle = adTitle,
                     adMediaFiles = mapToEMVASTMediaFile(
                         adSystem,
                         adTitle,
-                        listOf(it.Linear?.MediaFiles?.MediaFile),
+                        listOf(it.linear?.mediaFiles?.mediaFile),
                         adId
                     ),
                     adId = adId,
