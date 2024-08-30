@@ -48,9 +48,6 @@ dependencies {
     // Lifecycle
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.lifecycle:lifecycle-common-java8:2.5.1")
-
-    // IMA SDK
-    implementation("com.google.ads.interactivemedia.v3:interactivemedia:3.26.0")
 }
 
 
@@ -64,7 +61,7 @@ afterEvaluate {
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.41-alpha'
+                version = '1.0.42-alpha'
 
                 // Add the release sources JAR
 
@@ -81,7 +78,7 @@ afterEvaluate {
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.41-alpha'
+                version = '1.0.42-alpha'
 
                 // Add the debug sources JAR
 
