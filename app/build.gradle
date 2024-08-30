@@ -18,11 +18,21 @@ android {
         }
 
     }
+    signingConfigs {
+        release {
+            storeFile file("../signing-key-example")
+            storePassword "example"
+            keyAlias "key0"
+            keyPassword "example"
+        }
+    }
+
 
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {

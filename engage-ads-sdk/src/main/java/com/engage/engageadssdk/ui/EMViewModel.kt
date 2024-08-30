@@ -1,7 +1,6 @@
 package com.engage.engageadssdk.ui
 
 import android.content.Context
-import androidx.media3.common.util.UnstableApi
 import com.engage.engageadssdk.network.EMAdRequester
 import com.engage.engageadssdk.EMVideoPlayerListener
 import com.engage.engageadssdk.data.EMVASTAd
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-@UnstableApi
 internal class EMViewModel(
     private val isAutoplay: Boolean = EMAdsModule.getInstance().isAutoPlay
 ) {
@@ -112,7 +110,6 @@ internal class EMViewModel(
         }
     }
 
-    @UnstableApi
     fun loadAd() {
         if (_isLoadingAd.value) {
             return

@@ -1,7 +1,6 @@
 package com.engage.engageadssdk.ima
 
 import android.util.Log
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.BuildConfig
 import com.engage.engageadssdk.network.EMAdRequester
 import com.engage.engageadssdk.data.EMAdMapper
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 
-@UnstableApi
 internal class AdRequesterImpl(
     private val vastUrl: String,
     private val adNetworkService: AdNetworkService

@@ -1,135 +1,104 @@
 package com.engage.engageadssdk.ima
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.widget.MediaController
 import android.widget.ProgressBar
-import androidx.annotation.OptIn
+import android.widget.VideoView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DataSpec
-import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.ima.ImaAdsLoader
-import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
-import androidx.media3.exoplayer.source.MediaSource
-import androidx.media3.exoplayer.source.ads.AdsMediaSource
-import androidx.media3.ui.PlayerView
+import android.util.Log
+import androidx.core.view.isVisible
 import com.engage.engageadssdk.data.EMVASTAd
 
-@SuppressLint("UnsafeOptInUsageError")
 internal class AdPlayerImpl(
     context: Context,
-    private val playerView: PlayerView,
-    private val progressBar: ProgressBar,
-    private val imaAdsLoader: ImaAdsLoader = ImaAdsLoader.Builder(playerView.context).build(),
-    private val exoPlayer: ExoPlayer = ExoPlayer.Builder(context).run {
-        val mediaSourceFactory: MediaSource.Factory =
-            DefaultMediaSourceFactory(context).setLocalAdInsertionComponents({
-                imaAdsLoader
-            }, playerView)
-
-        setMediaSourceFactory(mediaSourceFactory)
-        build()
-    }
-
+    private val videoView: VideoView,
+    private val progressBar: ProgressBar
 ) : EMAdPlayer, LifecycleEventObserver {
+
     private var emContentPlaybackListener: EMContentPlaybackListener? = null
-
     private var _emVastAd: EMVASTAd? = null
-
     private val handler = Handler(Looper.getMainLooper())
     private val updateProgressAction = Runnable { updateProgress() }
 
     init {
-        playerView.player = exoPlayer
+        val mediaController = MediaController(context)
+        mediaController.setAnchorView(videoView)
+        videoView.setMediaController(mediaController)
     }
 
     private fun updateProgress() {
-        if (exoPlayer.isPlaying) {
-            val progress = (exoPlayer.currentPosition * 100 / exoPlayer.duration).toInt()
-            progressBar.progress = progress
-            emContentPlaybackListener?.onProgressUpdate(
-                exoPlayer.currentPosition,
-                exoPlayer.duration
-            )
+        videoView.let { vv ->
+            if (vv.isPlaying) {
+                val progress = (vv.currentPosition * 100 / vv.duration)
+                progressBar.progress = progress
+                emContentPlaybackListener?.onProgressUpdate(
+                    vv.currentPosition.toLong(),
+                    vv.duration.toLong()
+                )
+            }
+            handler.postDelayed(updateProgressAction, 1000)
         }
-        handler.postDelayed(updateProgressAction, 1000)
     }
 
-    @OptIn(UnstableApi::class)
-    fun prepareMediaSource(emVastAd: EMVASTAd, vastUrl: String): AdsMediaSource {
-        imaAdsLoader.setPlayer(playerView.player)
-        val adTagDataSpec = DataSpec(Uri.parse(emVastAd.adMediaFiles?.get(0)?.text))
-        val dataSourceFactory = DefaultDataSource.Factory(playerView.context)
-        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
-
-        return AdsMediaSource(
-            mediaSourceFactory.createMediaSource(MediaItem.fromUri(emVastAd.adMediaFiles?.get(0)?.text!!)), // Placeholder for content MediaItem
-            adTagDataSpec,
-            vastUrl,
-            mediaSourceFactory,
-            imaAdsLoader,
-            playerView
-        )
+    private fun prepareMediaSource(emVastAd: EMVASTAd) {
+        videoView.setVideoURI(Uri.parse(emVastAd.adMediaFiles?.get(0)?.text))
+        videoView.setOnPreparedListener { vv ->
+            vv.setOnCompletionListener {
+                emContentPlaybackListener?.onContentEnded()
+            }
+            vv.setOnInfoListener { _, what, _ ->
+                if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                    emContentPlaybackListener?.onContentStarted()
+                } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
+                    progressBar.isVisible = true
+                } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
+                    progressBar.isVisible = false
+                }
+                true
+            }
+            vv.start()
+            updateProgress()
+        }
+        videoView.setOnErrorListener { _, what, extra ->
+            Log.e("AdPlayerImpl", "VideoView error: what=$what, extra=$extra")
+            true
+        }
     }
 
     override val emVastAd: EMVASTAd?
         get() = _emVastAd
 
-
-    @UnstableApi
     override fun playAd(
         emVastAd: EMVASTAd,
         emContentPlaybackListener: EMContentPlaybackListener,
         vastUrl: String
     ) {
         _emVastAd = emVastAd
-        val adsMediaSource = prepareMediaSource(emVastAd, vastUrl)
-        exoPlayer.setMediaSource(adsMediaSource)
-        exoPlayer.prepare()
-        exoPlayer.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-
-            }
-
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == ExoPlayer.STATE_ENDED) {
-                    emContentPlaybackListener.onContentEnded()
-                } else if (state == ExoPlayer.STATE_READY) {
-                    emContentPlaybackListener.onContentStarted()
-                }
-            }
-        })
-        exoPlayer.playWhenReady = true
+        prepareMediaSource(emVastAd)
         this.emContentPlaybackListener = emContentPlaybackListener
-        updateProgress()
-
     }
 
     override fun release() {
         handler.removeCallbacks(updateProgressAction)
-        exoPlayer.release()
+        videoView.stopPlayback()
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_RESUME -> {
-                exoPlayer.playWhenReady = true
+                videoView.start()
                 updateProgress()
             }
-
             Lifecycle.Event.ON_PAUSE -> {
-                exoPlayer.playWhenReady = false
+                videoView.pause()
                 handler.removeCallbacks(updateProgressAction)
             }
-
             Lifecycle.Event.ON_DESTROY -> release()
             else -> Unit
         }

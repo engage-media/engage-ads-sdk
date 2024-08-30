@@ -1,6 +1,7 @@
 package com.engage.engageadssdk
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.net.Uri
 import android.util.AttributeSet
 import android.util.Log
@@ -9,11 +10,10 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.MediaController
 import android.widget.ProgressBar
+import android.widget.VideoView
 import androidx.core.view.isVisible
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.ui.PlayerView
-import androidx.media3.ui.PlayerView.ControllerVisibilityListener
 import com.engage.engageadssdk.data.EMVASTAd
 import com.engage.engageadssdk.ima.AdPlayerImpl
 import com.engage.engageadssdk.ima.EMAdPlayer
@@ -23,7 +23,6 @@ import com.engage.engageadssdk.ui.EMViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@UnstableApi
 class EMAdView
 @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -32,7 +31,7 @@ class EMAdView
     private var gestureDetector: GestureDetector
     private var isShowAdCalled: Boolean = false
     private val viewModel: EMViewModel = EMViewModel()
-    private val playerView: PlayerView
+    private val mediaPlayer: MediaPlayer
     private val progressBar: ProgressBar =
         ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal)
     private val adLoadingProgressBar: ProgressBar =
@@ -46,21 +45,50 @@ class EMAdView
 
     init {
         val vastUrl: String = fetchMetaData()
-        with(PlayerView(context)) {
-            playerView = this
-            playerView.useController = false
-            playerView.useController = false
-            playerView.controllerAutoShow = false
-            playerView.controllerShowTimeoutMs = 5000
-            playerView.setControllerVisibilityListener(ControllerVisibilityListener { visibility ->
-                if (visibility == View.VISIBLE) {
-                    playerView.hideController()
-                    Log.d("PlayerViewConfig", "Hiding controller programmatically")
+        // initialize the mediaPlayer
+        mediaPlayer = MediaPlayer().apply {
+            setOnPreparedListener { mp ->
+                mp.start()
+                Log.d("MediaPlayerConfig", "MediaPlayer started")
+            }
+            setOnCompletionListener {
+                Log.d("MediaPlayerConfig", "MediaPlayer completed")
+            }
+            setOnInfoListener { _, what, _ ->
+                if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                    Log.d("MediaPlayerConfig", "MediaPlayer rendering started")
                 }
-            })
-            playerView.id = "emPlayerView".hashCode()
-            this@EMAdView.addView(playerView)
+                true
+            }
         }
+
+// Configure MediaPlayer
+//        mediaPlayer.setDataSource(context, Uri.parse("your_video_uri_here"))
+//        mediaPlayer.prepareAsync()
+
+// Add MediaPlayer to EMAdView
+        val mediaPlayerView = VideoView(context).apply {
+//            setMediaController(MediaController(context).apply {
+//                setAnchorView(this@apply)
+//            })
+//            setVideoURI(Uri.parse("your_video_uri_here"))
+            setOnPreparedListener { mp ->
+                mp.start()
+                Log.d("MediaPlayerConfig", "VideoView started")
+            }
+            setOnCompletionListener {
+                Log.d("MediaPlayerConfig", "VideoView completed")
+            }
+            setOnInfoListener { _, what, _ ->
+                if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                    Log.d("MediaPlayerConfig", "VideoView rendering started")
+                }
+                true
+            }
+            id = "emMediaPlayerView".hashCode()
+        }
+
+        this@EMAdView.addView(mediaPlayerView)
         with(progressBar) {
             layoutParams =
                 LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
@@ -78,9 +106,11 @@ class EMAdView
             this@EMAdView.addView(adLoadingProgressBar)
         }
 
-        adPlayer = AdPlayerImpl(context, playerView, progressBar)
+        // use MediaPlayer instead of playerView
+
+        adPlayer = AdPlayerImpl(context, mediaPlayerView, progressBar)
         bindCollectorsToViewModel(viewModel, viewModel.scope)
-        viewModel.initialize(vastUrl, playerView.context)
+        viewModel.initialize(vastUrl, mediaPlayerView.context)
         gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: MotionEvent): Boolean {
                 val ad = adPlayer.emVastAd

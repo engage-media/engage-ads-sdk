@@ -21,7 +21,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
-import com.engage.engageadssdk.DefaultVideoPlayerListener
 import com.engage.engageadssdk.EMAdView
 import com.engage.engageadssdk.EMClientListener
 import com.engage.engageadssdk.data.EMVASTAd
@@ -66,7 +65,6 @@ class ComposeAdActivity : ComponentActivity() {
                                         FrameLayout.LayoutParams.MATCH_PARENT,
                                         FrameLayout.LayoutParams.MATCH_PARENT
                                     )
-                                    setAdEventListener(DefaultVideoPlayerListener(playerView))
                                     adView = this
                                     setClientListener(object: EMClientListener {
                                         override fun onAdsLoaded() {
