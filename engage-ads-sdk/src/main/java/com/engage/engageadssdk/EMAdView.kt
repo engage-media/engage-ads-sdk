@@ -134,7 +134,9 @@ class EMAdView
     private fun fetchMetaData(): String {
         val url: Uri = Uri.parse(if (EMAdsModule.getInstance().isDebug) {
             "https://s.adtelligent.com/demo"
-        } else {
+        } else if (EMAdsModule.getInstance().baseUrl.isNotEmpty()) {
+            EMAdsModule.getInstance().baseUrl
+        }  else {
             "https://vast.engagemediatv.com"
         })
         return url.buildUpon().apply {

@@ -17,4 +17,8 @@ interface EMAdsModuleInput {
         get() {
             return false
         }
+    val baseUrl: String
+        get() {
+            return ""
+        }
 }

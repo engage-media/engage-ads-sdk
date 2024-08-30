@@ -12,6 +12,7 @@ class EMAdsModuleInputBuilder {
     private var bundleId: String? = null
     private var isDebug: Boolean = false
     private var isAutoPlay: Boolean = true
+    private var baseUrl: String = ""
 
     fun isGdprApproved(isGdprApproved: Boolean) = apply { this.isGdprApproved = isGdprApproved }
     fun userId(userId: String) = apply { this.userId = userId }
@@ -21,6 +22,7 @@ class EMAdsModuleInputBuilder {
     fun bundleId(bundleId: String) = apply { this.bundleId = bundleId }
     fun isDebug(isDebug: Boolean) = apply { this.isDebug = isDebug }
     fun isAutoPlay(isAutoPlay: Boolean) = apply { this.isAutoPlay = isAutoPlay }
+    fun baseUrl(baseUrl: String) = apply { this.baseUrl = baseUrl }
 
     fun build(): EMAdsModuleInput {
         val builder = this
@@ -41,6 +43,8 @@ class EMAdsModuleInputBuilder {
                 get() = builder.bundleId ?: context.packageName
             override val isDebug: Boolean
                 get() = builder.isDebug
+            override val baseUrl: String
+                get() = builder.baseUrl
         }
     }
 
