@@ -61,7 +61,7 @@ afterEvaluate {
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.42-alpha'
+                version = '1.0.43-alpha'
 
                 // Add the release sources JAR
 
@@ -78,7 +78,7 @@ afterEvaluate {
 
                 groupId = 'com.github.engage-media'
                 artifactId = 'engage-ads-sdk'
-                version = '1.0.42-alpha'
+                version = '1.0.43-alpha'
 
                 // Add the debug sources JAR
 

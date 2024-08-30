@@ -18,21 +18,11 @@ android {
         }
 
     }
-    signingConfigs {
-        release {
-            storeFile file("../signing-key-example")
-            storePassword "example"
-            keyAlias "key0"
-            keyPassword "example"
-        }
-    }
-
 
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -73,7 +63,7 @@ dependencies {
     debugImplementation libs.androidx.ui.test.manifest
     implementation project(':engage-ads-sdk')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-//  implementation 'com.github.engage-media:engage-ads-sdk:v1.0.34-alpha'
+//  implementation 'com.github.engage-media:engage-ads-sdk:v1.0.42-alpha'
 
 
 }
