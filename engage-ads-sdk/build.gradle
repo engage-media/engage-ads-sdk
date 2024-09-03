@@ -48,8 +48,11 @@ dependencies {
     // Lifecycle
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.lifecycle:lifecycle-common-java8:2.5.1")
-}
 
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.27.0'
+    // Other dependencies
+    
+}
 
 
 afterEvaluate {
