@@ -13,11 +13,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 import java.io.BufferedReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID
-
 
 internal class AdNetworkService(
     private val context: Context,
@@ -30,9 +30,37 @@ internal class AdNetworkService(
     // keep retry counter
     var retryCounter: Int = 0
 
-
     private val deviceId: String = getOrCreateDeviceId()
     private val userAgent: String = "${Build.MODEL}.Android:${Build.VERSION.SDK_INT}"
+
+    val countryCode: String? by lazy {
+        return@lazy getCountryCodeFromApi()
+
+    }
+
+    private fun getCountryCodeFromApi(): String? {
+        val url = URL("https://api.country.is/")
+        val connection = url.openConnection() as HttpURLConnection
+        return try {
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+            connection.connect()
+
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val jsonResponse = JSONObject(response)
+                jsonResponse.getString("country")
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        } finally {
+            connection.disconnect()
+        }
+    }
 
     private fun getOrCreateDeviceId(): String {
         val sharedPrefs = sharedPreferences
@@ -128,7 +156,7 @@ internal class AdNetworkService(
             appendQueryParameter("cb", requestBody.user.id)
             appendQueryParameter("idfa", deviceId)
             appendQueryParameter("adid", deviceId)
-            appendQueryParameter("country", "US")
+            appendQueryParameter("country", countryCode)
             appendQueryParameter("dnt", "0")
             appendQueryParameter("lmt", "0")
             appendQueryParameter("os", requestBody.device.os)
@@ -140,8 +168,8 @@ internal class AdNetworkService(
             appendQueryParameter("ip", requestBody.device.ip)
             appendQueryParameter("secure", requestBody.imp[0].secure.toString())
             appendQueryParameter("vast_version", "3.0")
-            appendQueryParameter("channel", requestBody.app.channelId)
-            appendQueryParameter("publisher", requestBody.app.publisherId)
+            appendQueryParameter("channelId", requestBody.app.channelId)
+            appendQueryParameter("publisherId", requestBody.app.publisherId)
         }
         return uri
     }
