@@ -38,7 +38,7 @@ internal class AdPlayerImpl(
             adEventHandler.onComplete(adMediaInfo)
         }
     private val adEventHandler = AdEventHandler(this)
-    private val adRequestManager = AdRequestManager(imaSdkFactory, adsLoader, adDisplayContainer)
+    private val adRequestManager = AdRequestManager(imaSdkFactory, adsLoader, context)
 
     init {
         adsLoader.addAdsLoadedListener { adsManagerLoadedEvent ->

@@ -29,7 +29,7 @@ class DemoActivity : AppCompatActivity() {
                 .context(applicationContext) // must be set
                 .isGdprApproved(true) // defaults to false
                 .isAutoPlay(false) // defaults to false
-                .isDebug(true)
+                .isDebug(false)
                 .build()
         )
 
