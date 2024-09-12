@@ -1,8 +1,6 @@
 package com.engage.engagemediaadssdk.ui.compose
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -22,10 +20,9 @@ import androidx.media3.ui.PlayerView
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 import com.engage.engageadssdk.EMAdView
-import com.engage.engageadssdk.EMClientListener
-import com.engage.engageadssdk.data.EMVASTAd
+import com.engage.engageadssdk.EMVideoPlayerListener
 import com.engage.engageadssdk.module.EMAdsModule
-import com.engage.engageadssdk.module.EMAdsModuleInput
+import com.engage.engageadssdk.ui.EmClientContentController
 import com.engage.engagemediaadssdk.ui.theme.EngageMediaAdsSdkTheme
 
 @UnstableApi
@@ -66,48 +63,57 @@ class ComposeAdActivity : ComponentActivity() {
                                         FrameLayout.LayoutParams.MATCH_PARENT
                                     )
                                     adView = this
-                                    setClientListener(object: EMClientListener {
+                                    adView.setContentController(object: EmClientContentController {
+                                        override fun pauseContent() {
+                                            Toast.makeText(this@ComposeAdActivity, "My content has paused", Toast.LENGTH_SHORT).show()
+                                        }
+
+                                        override fun resumeContent() {
+                                            Toast.makeText(this@ComposeAdActivity, "My content has resumed", Toast.LENGTH_SHORT).show()
+                                        }
+
+                                    })
+                                    adView.setAdEventListener(object : EMVideoPlayerListener {
+                                        override fun onAdLoading() {
+                                            Toast.makeText(this@ComposeAdActivity, "Ad is loading", Toast.LENGTH_SHORT).show()
+                                        }
+
                                         override fun onAdsLoaded() {
-                                            // log
-                                            Log.d("MainActivity", "Ads loaded")
-                                            Toast.makeText(this@ComposeAdActivity, "Ads loaded", Toast.LENGTH_SHORT).show()
-                                            adView.isVisible = true
+                                            Toast.makeText(this@ComposeAdActivity, "Ad has Loaded", Toast.LENGTH_SHORT).show()
                                             if (!EMAdsModule.getInstance().isAutoPlay) {
+                                                // Example given here.
                                                 adView.showAd()
                                             }
                                         }
 
-                                        override fun onAdsLoadFailed() {
-                                            // toast
-                                            Toast.makeText(this@ComposeAdActivity, "Ads load failed", Toast.LENGTH_SHORT).show()
+                                        override fun onAdLoadError(message: String) {
+                                            super.onAdLoadError(message)
+                                            Toast.makeText(this@ComposeAdActivity, "Ad load failed", Toast.LENGTH_SHORT).show()
                                             adView.isVisible = false
                                         }
 
                                         override fun onAdStarted() {
-                                            Toast.makeText(this@ComposeAdActivity, "Ads Started", Toast.LENGTH_SHORT).show()
                                             adView.isVisible = true
+                                            Toast.makeText(this@ComposeAdActivity, "Ad has started", Toast.LENGTH_SHORT).show()
                                         }
 
-                                        override fun onAdCompleted() {
+                                        override fun onAdEnded() {
+                                            adView.isVisible = false
                                             Toast.makeText(this@ComposeAdActivity, "Ad has completed", Toast.LENGTH_SHORT).show()
-                                            adView.isVisible = false
                                         }
 
-                                        override fun onAdTapped(ad: EMVASTAd?) {
-                                            //TODO("Not yet implemented")
+                                        override fun onAdPaused() {
+                                            Toast.makeText(this@ComposeAdActivity, "Ad has paused", Toast.LENGTH_SHORT).show()
                                         }
 
-                                        override fun onNoAdsLoaded() {
-                                            // log
-                                            Log.d("MainActivity", "No ads loaded")
-                                            Toast.makeText(this@ComposeAdActivity, "No ads loaded", Toast.LENGTH_SHORT).show()
-                                            adView.isVisible = false
+                                        override fun onAdResumed() {
+                                            Toast.makeText(this@ComposeAdActivity, "Ad has resumed", Toast.LENGTH_SHORT).show()
                                         }
 
                                     })
+                                    adView.loadAd()
                                 })
                             }
-
                         },
                     )
                 }

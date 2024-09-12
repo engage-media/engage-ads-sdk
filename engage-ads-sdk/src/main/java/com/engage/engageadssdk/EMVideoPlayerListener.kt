@@ -1,8 +1,18 @@
 package com.engage.engageadssdk
 
-import kotlinx.coroutines.flow.Flow
-
 interface EMVideoPlayerListener {
-    val onProgressUpdateFlow: Flow<Pair<Long, Long>>
-    val onContentEndedFlow: Flow<Unit>
+    fun onAdStarted()
+    fun onAdLoading()
+    fun onAdsLoaded()
+    // notify the client to prepare for an adStart call
+    fun onAdEnded()
+    fun onAdPaused()
+    fun onAdResumed()
+
+    fun onAdLoadError(message: String) {
+        // Default implementation that does nothing
+    }
+    fun onAdTapped() {
+        // Default implementation that does nothing
+    }
 }

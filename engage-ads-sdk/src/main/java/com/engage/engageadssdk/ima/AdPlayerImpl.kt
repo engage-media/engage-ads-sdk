@@ -1,106 +1,130 @@
 package com.engage.engageadssdk.ima
 
 import android.content.Context
-import android.media.MediaPlayer
-import android.net.Uri
-import android.os.Handler
-import android.os.Looper
-import android.widget.MediaController
-import android.widget.ProgressBar
-import android.widget.VideoView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
+import android.media.AudioManager
 import android.util.Log
-import androidx.core.view.isVisible
-import com.engage.engageadssdk.data.EMVASTAd
+import android.view.ViewGroup
+import android.widget.VideoView
+import com.engage.engageadssdk.EMVideoPlayerListener
+import com.engage.engageadssdk.ui.EmClientContentController
+import com.google.ads.interactivemedia.v3.api.AdDisplayContainer
+import com.google.ads.interactivemedia.v3.api.AdPodInfo
+import com.google.ads.interactivemedia.v3.api.AdsLoader
+import com.google.ads.interactivemedia.v3.api.AdsManager
+import com.google.ads.interactivemedia.v3.api.ImaSdkFactory
+import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo
+import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer
+import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate
+
 
 internal class AdPlayerImpl(
     context: Context,
     private val videoView: VideoView,
-    private val progressBar: ProgressBar
-) : EMAdPlayer, LifecycleEventObserver {
+    private val vastUrl: String,
+) : EMAdPlayer, VideoAdPlayer {
 
-    private var emContentPlaybackListener: EMContentPlaybackListener? = null
-    private var _emVastAd: EMVASTAd? = null
-    private val handler = Handler(Looper.getMainLooper())
-    private val updateProgressAction = Runnable { updateProgress() }
+    private val imaSdkFactory: ImaSdkFactory = ImaSdkFactory.getInstance()
+    private val adDisplayContainer: AdDisplayContainer =
+        ImaSdkFactory.createAdDisplayContainer(videoView.parent as ViewGroup, this)
+    private val adsLoader: AdsLoader = imaSdkFactory.createAdsLoader(
+        context, imaSdkFactory.createImaSdkSettings(), adDisplayContainer
+    )
+    var adsManager: AdsManager? = null
+
+    private val adProgressTracker =
+        AdProgressTracker(videoView, { adMediaInfo, progress ->
+            adEventHandler.onAdProgress(adMediaInfo, progress)
+        }) { adMediaInfo ->
+            adEventHandler.onComplete(adMediaInfo)
+        }
+    private val adEventHandler = AdEventHandler(this)
+    private val adRequestManager = AdRequestManager(imaSdkFactory, adsLoader, adDisplayContainer)
 
     init {
-        val mediaController = MediaController(context)
-        mediaController.setAnchorView(videoView)
-        videoView.setMediaController(mediaController)
-    }
-
-    private fun updateProgress() {
-        videoView.let { vv ->
-            if (vv.isPlaying) {
-                val progress = (vv.currentPosition * 100 / vv.duration)
-                progressBar.progress = progress
-                emContentPlaybackListener?.onProgressUpdate(
-                    vv.currentPosition.toLong(),
-                    vv.duration.toLong()
-                )
-            }
-            handler.postDelayed(updateProgressAction, 1000)
+        adsLoader.addAdsLoadedListener { adsManagerLoadedEvent ->
+            adsManager = adsManagerLoadedEvent.adsManager
+            adsManager?.addAdEventListener(adEventHandler)
+            adsManager?.init(imaSdkFactory.createAdsRenderingSettings())
+        }
+        adsLoader.addAdErrorListener { adErrorEvent ->
+            Log.e("AdPlayerImpl", "Ad error: ${adErrorEvent.error.message}")
+            listener?.onAdLoadError(adErrorEvent.error.message)
         }
     }
 
-    private fun prepareMediaSource(emVastAd: EMVASTAd) {
-        videoView.setVideoURI(Uri.parse(emVastAd.adMediaFiles?.get(0)?.text))
-        videoView.setOnPreparedListener { vv ->
-            vv.setOnCompletionListener {
-                emContentPlaybackListener?.onContentEnded()
-            }
-            vv.setOnInfoListener { _, what, _ ->
-                if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
-                    emContentPlaybackListener?.onContentStarted()
-                } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-                    progressBar.isVisible = true
-                } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
-                    progressBar.isVisible = false
-                }
-                true
-            }
-            vv.start()
-            updateProgress()
-        }
-        videoView.setOnErrorListener { _, what, extra ->
-            Log.e("AdPlayerImpl", "VideoView error: what=$what, extra=$extra")
-            true
+    val adMediaInfo: AdMediaInfo?
+        get() = adProgressTracker.loadedAdMediaInfo
+
+    override fun requestAds() {
+        adRequestManager.requestAds(vastUrl)
+        listener?.onAdLoading()
+    }
+
+    override var listener: EMVideoPlayerListener? = null
+    override var controller: EmClientContentController? = null
+    override fun playAd() {
+        adsManager?.start()
+        if (adsManager == null) {
+            listener?.onAdLoadError("AdsManager is null")
         }
     }
 
-    override val emVastAd: EMVASTAd?
-        get() = _emVastAd
+    override fun getAdProgress(): VideoProgressUpdate {
+        Log.d("AdPlayerImpl", "getAdProgress")
+        return adProgressTracker.getAdProgress()
+    }
 
-    override fun playAd(
-        emVastAd: EMVASTAd,
-        emContentPlaybackListener: EMContentPlaybackListener,
-        vastUrl: String
-    ) {
-        _emVastAd = emVastAd
-        prepareMediaSource(emVastAd)
-        this.emContentPlaybackListener = emContentPlaybackListener
+    override fun getVolume(): Int {
+        val audioManager = videoView.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        return (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) / audioManager.getStreamMaxVolume(
+            AudioManager.STREAM_MUSIC
+        ))
+    }
+
+    override fun addCallback(p0: VideoAdPlayer.VideoAdPlayerCallback) {
+        adEventHandler.addCallback(p0)
+    }
+
+    override fun removeCallback(p0: VideoAdPlayer.VideoAdPlayerCallback) {
+        Log.d("AdPlayerImpl", "removeCallback: $p0")
+        adEventHandler.removeCallback(p0)
+    }
+
+    override fun loadAd(p0: AdMediaInfo, p1: AdPodInfo) {
+        Log.d("AdPlayerImpl", "loadAd: $p0")
+        adProgressTracker.loadAd(p0)
+    }
+
+    override fun playAd(p0: AdMediaInfo) {
+        Log.d("AdPlayerImpl", "playAd: $p0")
+        videoView.start()
+        listener?.onAdStarted()
+    }
+
+    override fun pauseAd(p0: AdMediaInfo) {
+        Log.d("AdPlayerImpl", "pauseAd: $p0")
+        videoView.pause()
+        listener?.onAdPaused()
+    }
+
+    override fun stopAd(p0: AdMediaInfo) {
+        Log.d("AdPlayerImpl", "stopAd: $p0")
+        videoView.stopPlayback()
+        adProgressTracker.stopAdTracking()
     }
 
     override fun release() {
-        handler.removeCallbacks(updateProgressAction)
+        Log.d("AdPlayerImpl", "release")
         videoView.stopPlayback()
     }
 
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        when (event) {
-            Lifecycle.Event.ON_RESUME -> {
-                videoView.start()
-                updateProgress()
-            }
-            Lifecycle.Event.ON_PAUSE -> {
-                videoView.pause()
-                handler.removeCallbacks(updateProgressAction)
-            }
-            Lifecycle.Event.ON_DESTROY -> release()
-            else -> Unit
-        }
+    fun onAdTapped() {
+        Log.d("AdPlayerImpl", "onAdTapped")
+        listener?.onAdTapped()
+    }
+
+    fun destroyAdManager() {
+        adsManager?.destroy()
+        adsManager = null
     }
 }

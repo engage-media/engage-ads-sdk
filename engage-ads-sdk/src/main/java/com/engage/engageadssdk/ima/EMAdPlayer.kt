@@ -1,14 +1,13 @@
 package com.engage.engageadssdk.ima
 
-import com.engage.engageadssdk.data.EMVASTAd
+import com.engage.engageadssdk.EMVideoPlayerListener
+import com.engage.engageadssdk.ui.EmClientContentController
 
 internal interface EMAdPlayer {
-    fun playAd(
-        emVastAd: EMVASTAd,
-        emContentPlaybackListener: EMContentPlaybackListener,
-        vastUrl: String,
-    )
-
+    fun playAd()
     fun release()
-    val emVastAd: EMVASTAd?
+    fun requestAds()
+
+    var listener: EMVideoPlayerListener?
+    var controller: EmClientContentController?
 }

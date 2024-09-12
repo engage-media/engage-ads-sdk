@@ -1,10 +1,14 @@
 # Engage Ads SDK
+
 [![](https://jitpack.io/v/engage-media/engage-ads-sdk.svg)](https://jitpack.io/#engage-media/engage-ads-sdk)
-Version: 1.0.35-alpha
+Version: 1.1.0-alpha
 
 ## Overview
 
-Engage Ads SDK is a comprehensive solution designed to integrate video ads into Android applications seamlessly. This SDK supports various ad formats, including pre-roll, mid-roll, and post-roll ads, leveraging the VAST standard for video ads. It is built with Kotlin and is compatible with Java projects.
+Engage Ads SDK is a comprehensive solution designed to integrate video ads into Android applications
+seamlessly. This SDK supports various ad formats, including pre-roll, mid-roll, and post-roll ads,
+leveraging the VAST standard for video ads. It is built with Kotlin and is compatible with Java
+projects.
 
 ## Features
 
@@ -27,7 +31,7 @@ Add the following dependencies to your `build.gradle` file:
 
 ```groovy
 dependencies {
-    implementation 'com.engage.engageadssdk:engage-ads-sdk:v1.0.35-alpha'
+    implementation 'com.engage.engageadssdk:engage-ads-sdk:v1.1.0-alpha'
 }
 ```
 
@@ -48,15 +52,28 @@ allprojects {
 1. Initialize the SDK in your `Application` class or before you start loading ads:
 
 ```kotlin
-EMAdsModule.init(object: EMAdsModuleInput {
+EMAdsModule.init(object : EMAdsModuleInput {
     override val isGdprApproved: Boolean = true
     override val publisherId: String = "Your Publisher ID"
-    override val userId: String = "User ID"
     override val channelId: String = "Channel ID"
     override val context: Context = applicationContext
     override val isDebug: Boolean = true // To see debug ads set this to true
     override val bundleId: String? = if (isAmazonTVApp()) "Your Bundle ID" else null
-    override val  isAutoPlay: Boolean = true  // defaults to false
+    override val isAutoPlay: Boolean = true  // defaults to false
+})
+```
+
+Or use the builder
+
+```kotlin
+EMAdsModule.init(EMAdsModuleInputBuilder().apply {
+    isGdprApproved = true
+    publisherId = "Your Publisher ID"
+    channelId = "Channel ID"
+    context = applicationContext
+    isDebug = true
+    bundleId = if (isAmazonTVApp()) "Your Bundle ID" else null
+    isAutoPlay = true
 })
 ```
 
@@ -65,121 +82,170 @@ EMAdsModule.init(object: EMAdsModuleInput {
 ### XML
 
 ```xml
-<com.engage.engageadssdk.EMAdView
-    android:id="@+id/adView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"/>
+
+<com.engage.engageadssdk.EMAdView android:id="@+id/adView" android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
 ```
+
 and in your `Activity` or `Fragment`:
+
 ```kotlin
 val adView = findViewById<EMAdView>(R.id.adView).apply {
-    setAdEventListener(DefaultVideoPlayerListener(playerView))
-    setClientListener(object: EMClientListener {
+    setContentController(object : EmClientContentController {
+        override fun pauseContent() {
+            // Pause your content here
+        }
+        override fun resumeContent() {
+            // Resume your content here
+        }
+    })
+    setAdEventListener(object : EMVideoPlayerListener {
+        override fun onAdStarted() {
+            // Ad started
+        }
+        override fun onAdLoading() {
+            // Ad loading
+        }
         override fun onAdsLoaded() {
             // Ad loaded successfully
         }
 
-        override fun onAdsLoadFailed() {
-            // Ad loading failed
+        override fun onAdEnded() {
+            // Ad ended
+        }
+        override fun onAdPaused() {
+            // Ad paused
+        }
+        override fun onAdResumed() {
+            // Ad resumed
         }
 
-        override fun onAdStarted() {
-            // Ad started
+        fun onAdLoadError(message: String) {
+            // Default implementation that does nothing
+        }
+        fun onAdTapped() {
+            // Default implementation that does nothing
         }
 
-        override fun onAdCompleted() {
-            // Ad completed
-        }
-
-        override fun onAdTapped(ad: EMVASTAd?) {
-            // Ad tapped
-        }
-
-        override fun onNoAdsLoaded() {
-            // No ads loaded
-        }
-    })
+    }
 }
 ```
+
 ### Jetpack Compose
+
 ```kotlin
 @Composable
 fun AdViewComposable() {
     AndroidView(
-        factory = { context ->
+        factory = { context: Context ->
             EMAdView(context).apply {
-                setAdEventListener(DefaultVideoPlayerListener(playerView))
-                setClientListener(object: EMClientListener {
-                    override fun onAdsLoaded() {
-                        // Ad loaded successfully
+                setContentController(object : EmClientContentController {
+                    override fun pauseContent() {
+                        // Pause your content here
                     }
-
-                    override fun onAdsLoadFailed() {
-                        // Ad loading failed
-                    }
-
-                    override fun onAdStarted() {
-                        // Ad started
-                    }
-
-                    override fun onAdCompleted() {
-                        // Ad completed
-                    }
-
-                    override fun onAdTapped(ad: EMVASTAd?) {
-                        // Ad tapped
-                    }
-
-                    override fun onNoAdsLoaded() {
-                        // No ads loaded
+                    override fun resumeContent() {
+                        // Resume your content here
                     }
                 })
+                setAdEventListener(
+                    object : EMVideoPlayerListener {
+                        override fun onAdStarted() {
+                            // Ad started
+                        }
+                        override fun onAdLoading() {
+                            // Ad loading
+                        }
+                        override fun onAdsLoaded() {
+                            // Ad loaded successfully
+                        }
+
+                        override fun onAdEnded() {
+                            // Ad ended
+                        }
+                        override fun onAdPaused() {
+                            // Ad paused
+                        }
+                        override fun onAdResumed() {
+                            // Ad resumed
+                        }
+
+                        fun onAdLoadError(message: String) {
+                            // Default implementation that does nothing
+                        }
+                        fun onAdTapped() {
+                            // Default implementation that does nothing
+                        }
+
+                    },
+                    modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                )
             }
-        },
-        modifier = Modifier.fillMaxWidth().wrapContentHeight()
-    )
-}
+        }
 ```
+
 ### Simple Kotlin/Java Format
+
 ```kotlin
 val adView = EMAdView(context).apply {
-    setAdEventListener(DefaultVideoPlayerListener(playerView))
-    setClientListener(object: EMClientListener {
+    setContentController(object: EmClientContentController {
+        override fun pauseContent() {
+            // Pause your content here
+        }
+        override fun resumeContent() {
+            // Resume your content here
+        }
+    })
+    setAdEventListener(object: EMVideoPlayerListener {
+        override  fun onAdStarted() {
+            // Ad started
+        }
+        override fun onAdLoading() {
+            // Ad loading
+        }
         override fun onAdsLoaded() {
             // Ad loaded successfully
         }
 
-        override fun onAdsLoadFailed() {
-            // Ad loading failed
+        override fun onAdEnded() {
+            // Ad ended
+        }
+        override fun onAdPaused() {
+            // Ad paused
+        }
+        override fun onAdResumed(){
+            // Ad resumed
         }
 
-        override fun onAdStarted() {
-            // Ad started
+        fun onAdLoadError(message: String) {
+            // Default implementation that does nothing
+        }
+        fun onAdTapped() {
+            // Default implementation that does nothing
         }
 
-        override fun onAdCompleted() {
-            // Ad completed
-        }
-
-        override fun onAdTapped(ad: EMVASTAd?) {
-            // Ad tapped
-        }
-
-        override fun onNoAdsLoaded() {
-            // No ads loaded
-        }
-    })
+    }
 }
 ```
-3. Load ads using the `EMAdView` instance (or let the SDK do it for you automatically):
+
+3. Load ads using the `EMAdView` instance (or let the SDK do it for you automatically by using the `isAutoPlay` flag):
 
 ```kotlin
 adView.loadAd()
 ```
 
+4. Play ads using the `EMAdView` instance:
+
+```kotlin
+adView.playAd()
+```
+
 # Contributing
-We welcome contributions to the Engage Ads SDK. To contribute, Please submit any bugs, issues, or feature requests through the GitHub issue tracker. 
+
+We welcome contributions to the Engage Ads SDK. To contribute, Please submit any bugs, issues, or
+feature requests through the GitHub issue tracker.
 
 # License
+
 Engage Ads SDK is licensed under the MIT License. See the LICENSE file for more details.
+
 ```

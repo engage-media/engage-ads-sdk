@@ -8,7 +8,6 @@ interface EMAdsModuleInput {
         return false
     }
     val isGdprApproved: Boolean
-    val userId: String
     val context: Context
     val channelId: String
     val publisherId: String

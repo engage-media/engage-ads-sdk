@@ -23,13 +23,12 @@ class DemoActivity : AppCompatActivity() {
         EMAdsModule.init(
             EMAdsModuleInputBuilder()
                 // Most of these fields are optional and do not have to be set
-                .channelId("Some Channel ID") // must be set
-                .publisherId("Some Publisher ID") // must be set
-                .bundleId("Some Bundle Id") // defaults to context.packageName, set if Amazon project
+                .channelId("dd3cc3f6") // must be set
+                .publisherId("a8ce40dc") // must be set
+//                .bundleId("Some Bundle Id") // defaults to context.packageName, set if Amazon project
                 .context(applicationContext) // must be set
                 .isGdprApproved(true) // defaults to false
-                .isAutoPlay(true) // defaults to false
-                .userId("1111") // defaults to ""
+                .isAutoPlay(false) // defaults to false
                 .isDebug(true)
                 .build()
         )
