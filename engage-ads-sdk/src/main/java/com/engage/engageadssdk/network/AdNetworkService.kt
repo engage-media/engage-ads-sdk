@@ -30,7 +30,20 @@ internal class AdNetworkService(
     var retryCounter: Int = 0
 
     private val deviceId: String = getOrCreateDeviceId()
-    private val userAgent: String = "${Build.MODEL}.Android:${Build.VERSION.SDK_INT}"
+    private val userAgent: String =
+        (System.getProperty("http.agent") ?:  run  {
+        val appName = context.applicationInfo.loadLabel(context.packageManager).toString()
+        val appVersion = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        val deviceModel = Build.MODEL
+        val osVersion = Build.VERSION.RELEASE
+        return@run String.format(
+            "%s/%s (Linux; Android %s; %s)",
+            appName,
+            appVersion,
+            osVersion,
+            deviceModel
+        )
+    }).replace("KFRAWI", "FireTV")
 
     val countryCode: String? by lazy {
         return@lazy getCountryCodeFromApi()?.getString("country") ?: run {
@@ -150,9 +163,9 @@ internal class AdNetworkService(
             appendQueryParameter("model", requestBody.device.model)
             appendQueryParameter("js", requestBody.device.js.toString())
             appendQueryParameter("devicetype", requestBody.device.devicetype.toString())
-            if (requestBody.device.ip?.isNotEmpty() == true) {
-                appendQueryParameter("ip", requestBody.device.ip)
-            }
+//            if (requestBody.device.ip?.isNotEmpty() == true) {
+//                appendQueryParameter("ip", requestBody.device.ip)
+//            }
             appendQueryParameter("secure", requestBody.imp[0].secure.toString())
             appendQueryParameter("vast_version", "3.0")
             appendQueryParameter("channel", requestBody.app.channelId)
