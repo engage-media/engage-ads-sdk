@@ -113,7 +113,7 @@ public final class EngageTVInstreamAd: NSObject, @preconcurrency IMAAdsLoaderDel
               !container.convert(container.bounds, to: window).intersection(window.bounds).isEmpty,
               UIApplication.shared.applicationState == .active, isVisible(container) else { handler?(.error(.rendering("tvOS ad container must be visible before loading"))); return }
         loadRequested = true
-        let display = IMAAdDisplayContainer(adContainer: container, viewController: controller, companionSlots: nil)
+        let display = IMAAdDisplayContainer(adContainer: container, viewController: controller)
         displayContainer = display
         for obstruction in friendlyObstructions {
             guard obstruction.view.window === window else {
