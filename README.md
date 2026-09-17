@@ -8,6 +8,8 @@ See [performance and reliability](docs/PERFORMANCE_AND_RELIABILITY.md) for the A
 
 See [Open Measurement](docs/OPEN_MEASUREMENT.md) for IMA versus custom-renderer session ownership, verification metadata, and the remaining partner-artifact and certification gates.
 
+See [using other mediation SDKs](docs/OTHER_MEDIATION_SDKS.md) for host coordination, dependency checks, and the distinction between side-by-side installation and AdMob/MAX adapters.
+
 | Platform | Formats | Minimum OS |
 | --- | --- | --- |
 | Android mobile | Banner, interstitial, rewarded, native image/video, in-stream video | Android 7 / API 24 |

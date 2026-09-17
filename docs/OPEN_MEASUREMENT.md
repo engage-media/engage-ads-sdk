@@ -61,7 +61,7 @@ The implemented default path is IMA-owned video measurement. Custom HTML/static-
 | Fresh staged Android mobile/TV consumers | Both compile with a custom endpoint and the public measurement-backend API |
 | Swift real-HTTP consumer | Passed, including verification-markup preservation and honest default capability reporting |
 | Android real OM verification | All six scenarios passed on the final shrunk release consumers after clearing probe app data |
-| Apple native renderer build/runtime | Not verified: full Xcode and simulator/device tooling unavailable |
+| Apple native renderer build/runtime | Native SDK compilation passed on hosted Xcode 16.4; actual ad playback and measurement remain unverified (see [validation status](VALIDATION.md)) |
 | Engage custom OM runtime | Not verified: namespaced SDK artifacts and adapter implementation remain outstanding |
 
 The six Android scenarios are OpenRTB inline, wrapper, pod, failed verification-resource download, direct VAST inline, and the TV facade's pod on the same mobile emulator. Positive cases received actual `sessionStart`, `impression`, and `sessionFinish` callbacks through the official IAB verification client. Wrappers reached both verification resources; pods produced two distinct ad-session IDs. OpenRTB still billed once per bid, direct VAST billed zero times through Engage, and preload sent no measurement or billing. The deliberately failing verification download did not interrupt playback. This does not qualify physical Android TV/Fire TV devices or viewability geometry.

@@ -1,8 +1,10 @@
 # Apple validation gaps
 
-This note separates Apple checks that already exist but require full Xcode from acceptance coverage that has not been implemented. Installing Xcode is necessary, but it does not by itself close the renderer release gate.
+This note separates Apple build checks from acceptance coverage that has not been implemented. Installing Xcode is necessary, but it does not by itself close the renderer release gate.
 
-## Existing checks blocked by full Xcode
+## Existing build and smoke checks
+
+The hosted Xcode 16.4 run for commit `d377337` compiled both native package products successfully on September 17, 2026. It then exposed a test-runner configuration error: individual product schemes had no test action. The runner now selects the aggregate `EngageAdsSDK-Package` scheme and the relevant platform test target. See [validation status](VALIDATION.md) for the subsequent run results.
 
 - The workflow builds the `EngageAdsMobile` and `EngageAdsTV` package schemes for generic simulators (`.github/workflows/sdk-v2.yml`, Apple job).
 - The workflow regenerates and builds `EngageMobileExample` and `EngageTVExample` (`apple/Examples/project.yml` and `apple/Examples/generate.sh`).

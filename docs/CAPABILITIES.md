@@ -1,6 +1,6 @@
 # v2 capability boundaries
 
-The request builder advertises capabilities implemented by its renderer. The matrix describes the implemented v2 integration profile, not a completed release qualification. Native Apple compilation and renderer validation are still outstanding; automated and physical-device evidence is tracked in [VALIDATION.md](VALIDATION.md).
+The request builder advertises capabilities implemented by its renderer. The matrix describes the implemented v2 integration profile, not a completed release qualification. Native Apple SDK compilation has passed on hosted Xcode; renderer validation remains outstanding. Automated and physical-device evidence is tracked in [VALIDATION.md](VALIDATION.md).
 
 | Capability | Android mobile / iOS | Android TV / tvOS |
 | --- | --- | --- |

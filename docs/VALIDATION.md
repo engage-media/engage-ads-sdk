@@ -18,7 +18,7 @@ Automated fixture success is a prerequisite, not a replacement for physical-devi
 
 ## Environment discovered during implementation
 
-The local host has Swift 6.3.2, a Homebrew JDK 17 and Android command-line tools. Full Xcode is not installed/selected. Android builds and Foundation-only Swift tests can run locally. iOS/tvOS rendering and simulator builds require a full-Xcode host. No physical devices, production server test campaign, or publishing credentials were supplied with this implementation request.
+At the start of implementation, the local host had Swift 6.3.2, a Homebrew JDK 17 and Android command-line tools, but no full Xcode installation. The native build follow-up below supersedes that tooling limitation. No physical devices, production server test campaign, or publishing credentials were supplied with this implementation request.
 
 ## Reproducible local checks
 
@@ -73,7 +73,7 @@ The emulator checks caught Android ICU regex and XML-provider incompatibilities 
 
 ## Gates requiring external validation
 
-- Build and run native iOS/tvOS products on full Xcode; complete simulator renderer tests.
+- Complete native iOS/tvOS ad-renderer tests; the native build follow-up below closes compilation and basic platform-smoke gates only.
 - Complete renderer cases beyond the recorded Android emulator checks, plus the physical mobile/TV device matrix and MRAID conformance creatives.
 - Test an authorized real ad-server campaign, including `nurl`, `burl`, wrappers, pods, consent, and reward behavior.
 - Verify Maven namespace ownership and signing/publishing access; publish and test clean Maven/SPM consumers of released versions.
@@ -140,7 +140,7 @@ Additional Android lifecycle tests verify zero billing on preload, one dispatch 
 
 ### Limits of this run
 
-Full Xcode is absent and Command Line Tools are selected. Five native Apple commands were attempted and blocked: the mobile SDK build, TV SDK build, simulator tests, mobile sample build, and TV sample build. Foundation tests and the HTTP consumer do not validate UIKit, WKWebView, AVPlayer, or IMA rendering. The Apple validation audit also identified missing renderer automation; installing Xcode alone does not close all Apple gates. See [Apple validation gaps](APPLE_VALIDATION_GAPS.md).
+At that stage full Xcode was absent and Command Line Tools were selected. Five native Apple commands were attempted and blocked: the mobile SDK build, TV SDK build, simulator tests, mobile sample build, and TV sample build. The native build follow-up below supersedes these build blockers. Foundation tests and the HTTP consumer do not validate UIKit, WKWebView, AVPlayer, or IMA rendering. The Apple validation audit also identified missing renderer automation; installing Xcode alone does not close all Apple gates. See [Apple validation gaps](APPLE_VALIDATION_GAPS.md).
 
 Remaining renderer qualification includes the full standard MRAID creative suite, HTML/image interstitial runtime coverage, orientation and broader foreground/visibility transitions, custom native-view binding, actual publisher content playback restoration, pre/mid/post-roll host integration, and TV skip/back navigation. The passing Android smoke cases do not establish all of these behaviors.
 
@@ -157,3 +157,28 @@ Five release rendering cases, intentional WebView process termination, and 50 co
 The later OM integration pass has **177 passing automated tests**: Android 97, Swift core 27, shared 46, and release tooling 7. Final Android builds/lint, staged consumers, and the 3 MiB release-size gate pass. The shrunk release consumer receives genuine OM session/impression/finish callbacks from IMA through the official IAB verification client; inline/wrapper/pod/direct-VAST and verification-download failure scenarios pass without changing billing ownership. The dedicated Android TV API 34 emulator also passed a two-ad pod with two OM sessions and one billing notice. All five existing renderer smoke cases, WebView termination recovery, and 50 cleanup cycles were rerun successfully.
 
 See [OPEN_MEASUREMENT.md](OPEN_MEASUREMENT.md) and `dist/measurement/` for precise artifact hashes, scope, retained cold-run failure evidence, and measurements. Custom HTML/native session tests use backend doubles; Engage's namespaced OM runtime is absent and is not production-qualified. Apple native syntax parsing is not a successful Xcode build or runtime test. Physical-device measurement, real-server interoperability, the Engage backend, and applicable IAB compliance remain release gates.
+
+## Native build follow-up — 2026-09-17
+
+Full Xcode 27.0 (27A266a), iOS 27.0 (24A434), and tvOS 27.0 (24J360) simulator runtimes are now installed locally. Commands explicitly used `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`; the system-wide developer-directory setting was not required to change.
+
+| Check | Result |
+| --- | --- |
+| Android unit tests, assembly, and lint | Passed; 97 unit tests |
+| Swift Foundation core tests and real-HTTP consumer | Passed; 27 core tests |
+| Shared bridge/fixture tests and release-tooling tests | Passed; 46 shared and 7 tooling tests |
+| Native iOS and tvOS SDK simulator compilation | Both passed on local Xcode 27 and hosted Xcode 16.4 |
+| iOS 27 simulator smoke tests | Passed; 2 tests |
+| tvOS 27 simulator smoke tests | Passed; 2 tests |
+| Mobile and TV example simulator app builds | Both passed, including final app linkage |
+| Mobile and TV example unsigned device app builds | Both passed; this does not mean execution on physical hardware |
+
+This pass has **181 passing automated tests**, including four native platform smoke tests. Local logs are under `dist/xcode-validation/`; native result bundles are `apple/DerivedData/EngageAdsMobile.xcresult` and `apple/DerivedData/EngageAdsTV.xcresult`.
+
+The first hosted run exposed an obsolete Android SDK setup package and a SwiftPM product scheme without a test action. CI now installs `platform-tools` explicitly, installs the shared npm dependencies in the release workflow, and runs the aggregate Swift package test scheme with the appropriate platform test target. Once tests reached final linkage, they exposed an unsupported tvOS IMA companion-slot class reference. The TV renderer now uses IMA's two-argument display-container initializer. CI also links both example applications for unsigned physical-device targets, since a standalone library compilation did not catch the missing symbol.
+
+These checks establish native compilation, app linkage, and the existing configuration/focus smoke tests. They do not establish actual Apple ad playback, Apple OM verification, physical-device behavior, or the missing renderer campaign described in [Apple validation gaps](APPLE_VALIDATION_GAPS.md). See [other mediation SDKs](OTHER_MEDIATION_SDKS.md) for the separate coexistence acceptance scope.
+
+The complete hosted workflow for source commit `04c78e6` also passed: [GitHub Actions run 35250428752](https://github.com/engage-media/engage-ads-sdk/actions/runs/35250428752). Its Android job passed staged consumer installation and the 3 MiB release-size gate; its Apple job passed core/consumer checks, native simulator tests, and both sample apps' simulator and unsigned-device builds.
+
+Separate isolated mobile consumers built with Engage, Google Mobile Ads, and AppLovin MAX together: Android release APK packaging and iOS Release simulator final linkage passed with the exact version sets recorded in [other mediation SDKs](OTHER_MEDIATION_SDKS.md). These probes made no ad requests and do not close cross-provider runtime or TV qualification.
