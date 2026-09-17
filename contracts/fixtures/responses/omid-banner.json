@@ -1,0 +1,1 @@
+{"id":"request-omid-banner","seatbid":[{"seat":"fixture-seat","bid":[{"id":"bid-omid-banner-1","impid":"imp-1","price":0.5,"adm":"{{OMID_BANNER}}","nurl":"{{BASE_URL}}/notice/nurl/bid-omid-banner-1","burl":"{{BASE_URL}}/notice/burl/bid-omid-banner-1","crid":"creative-omid-banner-1","apis":[7]}]}],"cur":"USD"}

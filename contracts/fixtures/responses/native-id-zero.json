@@ -1,0 +1,1 @@
+{"id":"request-native-id-zero","seatbid":[{"seat":"fixture-seat","bid":[{"id":"native-id-zero","impid":"imp-1","price":1,"adm":"{\"ver\":\"1.2\",\"assets\":[{\"id\":0,\"title\":{\"text\":\"Asset zero is valid\"}}],\"link\":{\"url\":\"{{BASE_URL}}/landing/native-id-zero\"}}"}]}],"cur":"USD"}

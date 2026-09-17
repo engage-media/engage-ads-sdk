@@ -1,0 +1,1 @@
+{"id":"request-banner","seatbid":[{"seat":"fixture-seat","bid":[{"id":"negative-price","impid":"imp-1","price":-0.01,"adm":"<p>must reject negative price</p>"}]}],"cur":"USD"}

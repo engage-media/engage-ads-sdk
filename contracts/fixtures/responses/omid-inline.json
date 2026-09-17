@@ -1,0 +1,1 @@
+{"id":"request-omid-inline","seatbid":[{"seat":"fixture-seat","bid":[{"id":"bid-omid-inline-1","impid":"imp-1","price":1.25,"adm":"{{VAST_OMID_INLINE}}","nurl":"{{BASE_URL}}/notice/nurl/bid-omid-inline-1","burl":"{{BASE_URL}}/notice/burl/bid-omid-inline-1","crid":"creative-omid-inline-1","apis":[7]}]}],"bidid":"auction-omid-inline-1","cur":"USD"}

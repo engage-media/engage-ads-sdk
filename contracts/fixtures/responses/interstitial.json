@@ -1,0 +1,1 @@
+{"id":"request-interstitial","seatbid":[{"seat":"fixture-seat","bid":[{"id":"bid-interstitial-1","impid":"imp-1","price":2.0,"adm":"{{VAST_LINEAR}}","nurl":"{{BASE_URL}}/notice/nurl/bid-interstitial-1","burl":"{{BASE_URL}}/notice/burl/bid-interstitial-1","crid":"creative-interstitial-1","w":390,"h":844}]}],"bidid":"auction-interstitial-1","cur":"USD"}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VAST version="4.2" xmlns="http://www.iab.com/VAST">
+  <Ad id="linear-1" conditionalAd="false">
+    <InLine>
+      <AdSystem version="1.0">EngageFixture</AdSystem>
+      <AdTitle>Engage local linear fixture</AdTitle>
+      <Impression id="primary"><![CDATA[{{BASE_URL}}/track/impression/linear-1]]></Impression>
+      <Error><![CDATA[{{BASE_URL}}/track/error/linear-1?code=[ERRORCODE]]]></Error>
+      <Creatives>
+        <Creative id="creative-linear-1" adId="linear-1">
+          <UniversalAdId idRegistry="engage.fixture">linear-1</UniversalAdId>
+          <Linear skipoffset="25%">
+            <Duration>00:00:02</Duration>
+            <TrackingEvents>
+              <Tracking event="start"><![CDATA[{{BASE_URL}}/track/start/linear-1]]></Tracking>
+              <Tracking event="firstQuartile"><![CDATA[{{BASE_URL}}/track/firstQuartile/linear-1]]></Tracking>
+              <Tracking event="midpoint"><![CDATA[{{BASE_URL}}/track/midpoint/linear-1]]></Tracking>
+              <Tracking event="thirdQuartile"><![CDATA[{{BASE_URL}}/track/thirdQuartile/linear-1]]></Tracking>
+              <Tracking event="complete"><![CDATA[{{BASE_URL}}/track/complete/linear-1]]></Tracking>
+            </TrackingEvents>
+            <AdParameters xmlEncoded="false"><![CDATA[{"fixture":true}]]></AdParameters>
+            <VideoClicks>
+              <ClickThrough id="primary"><![CDATA[{{BASE_URL}}/landing/linear-1]]></ClickThrough>
+              <ClickTracking id="primary"><![CDATA[{{BASE_URL}}/track/click/linear-1]]></ClickTracking>
+            </VideoClicks>
+            <MediaFiles>
+              <MediaFile id="local-mp4" delivery="progressive" type="video/mp4" width="320" height="180" scalable="true" maintainAspectRatio="true"><![CDATA[{{BASE_URL}}/media/test-card.mp4]]></MediaFile>
+            </MediaFiles>
+          </Linear>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+</VAST>

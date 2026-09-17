@@ -1,0 +1,1 @@
+{"id":"request-banner-two-part","seatbid":[{"seat":"fixture-seat","bid":[{"id":"bid-banner-two-part-1","impid":"imp-1","price":1.25,"adm":"{{BANNER_TWO_PART}}","nurl":"{{BASE_URL}}/notice/nurl/bid-banner-two-part-1","burl":"{{BASE_URL}}/notice/burl/bid-banner-two-part-1","crid":"creative-banner-two-part-1","w":320,"h":50}]}],"bidid":"auction-banner-two-part-1","cur":"USD"}

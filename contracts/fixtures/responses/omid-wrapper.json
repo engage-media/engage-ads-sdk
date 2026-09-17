@@ -1,0 +1,1 @@
+{"id":"request-omid-wrapper","seatbid":[{"seat":"fixture-seat","bid":[{"id":"bid-omid-wrapper-1","impid":"imp-1","price":1.25,"adm":"{{VAST_OMID_WRAPPER}}","nurl":"{{BASE_URL}}/notice/nurl/bid-omid-wrapper-1","burl":"{{BASE_URL}}/notice/burl/bid-omid-wrapper-1","crid":"creative-omid-wrapper-1","apis":[7]}]}],"bidid":"auction-omid-wrapper-1","cur":"USD"}

@@ -1,0 +1,49 @@
+name: EngageAdsExamples
+options:
+  bundleIdPrefix: com.engage.example
+  deploymentTarget:
+    iOS: "15.0"
+    tvOS: "15.0"
+packages:
+  EngageAdsSDK:
+    path: ../..
+targets:
+  EngageMobileExample:
+    type: application
+    platform: iOS
+    sources: [MobileDemo]
+    dependencies:
+      - package: EngageAdsSDK
+        product: EngageAdsMobile
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.engage.example.mobile
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_EngageAdsEndpoint: http://127.0.0.1:8787/openrtb/2.6/auto
+        INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsLocalNetworking: YES
+  EngageTVExample:
+    type: application
+    platform: tvOS
+    sources: [TVDemo]
+    dependencies:
+      - package: EngageAdsSDK
+        product: EngageAdsTV
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.engage.example.tv
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_EngageAdsEndpoint: http://127.0.0.1:8787/openrtb/2.6/pod
+        INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsLocalNetworking: YES
+schemes:
+  EngageMobileExample:
+    build:
+      targets:
+        EngageMobileExample: all
+    run:
+      config: Debug
+  EngageTVExample:
+    build:
+      targets:
+        EngageTVExample: all
+    run:
+      config: Debug

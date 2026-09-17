@@ -1,0 +1,1 @@
+{"id":"request-banner","seatbid":[{"seat":"fixture-seat","bid":[{"id":"bid-nurl-markup-1","impid":"imp-1","price":0.5,"nurl":"{{BASE_URL}}/markup/banner?bid=bid-nurl-markup-1","burl":"{{BASE_URL}}/notice/burl/bid-nurl-markup-1","crid":"creative-nurl-markup-1","w":320,"h":50}]}],"bidid":"auction-nurl-markup-1","cur":"USD"}

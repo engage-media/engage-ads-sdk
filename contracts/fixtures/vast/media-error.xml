@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VAST version="4.2" xmlns="http://www.iab.com/VAST">
+  <Ad id="media-error-1">
+    <InLine>
+      <AdSystem version="1.0">EngageFixture</AdSystem>
+      <AdTitle>Engage missing-media fixture</AdTitle>
+      <Impression><![CDATA[{{BASE_URL}}/track/impression/media-error-1]]></Impression>
+      <Error><![CDATA[{{BASE_URL}}/track/error/media-error-1?code=[ERRORCODE]]]></Error>
+      <Creatives>
+        <Creative id="creative-media-error-1">
+          <UniversalAdId idRegistry="engage.fixture">media-error-1</UniversalAdId>
+          <Linear>
+            <Duration>00:00:15</Duration>
+            <MediaFiles>
+              <MediaFile id="missing-mp4" delivery="progressive" type="video/mp4" width="320" height="180"><![CDATA[{{BASE_URL}}/media/missing.mp4]]></MediaFile>
+            </MediaFiles>
+          </Linear>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+</VAST>

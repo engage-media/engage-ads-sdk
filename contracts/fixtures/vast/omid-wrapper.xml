@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VAST version="4.2" xmlns="http://www.iab.com/VAST">
+  <Ad id="omid-wrapper-1">
+    <Wrapper followAdditionalWrappers="true" allowMultipleAds="false" fallbackOnNoAd="true">
+      <AdSystem version="1.0">EngageFixture</AdSystem>
+      <Error><![CDATA[{{BASE_URL}}/track/error/omid-wrapper-1?code=[ERRORCODE]]]></Error>
+      <Impression><![CDATA[{{BASE_URL}}/track/impression/omid-wrapper-1]]></Impression>
+      <AdVerifications>
+        <Verification vendor="engage-fixture">
+          <JavaScriptResource apiFramework="omid" browserOptional="true"><![CDATA[{{BASE_URL}}/verification/omid-verification.js?id=omid-wrapper-1]]></JavaScriptResource>
+          <TrackingEvents><Tracking event="verificationNotExecuted"><![CDATA[{{BASE_URL}}/verification/event/verificationNotExecuted/omid-wrapper-1?reason=[REASON]]]></Tracking></TrackingEvents>
+          <VerificationParameters><![CDATA[fixture=omid-wrapper-1&mode=test-only]]></VerificationParameters>
+        </Verification>
+      </AdVerifications>
+      <Creatives><Creative id="omid-wrapper-creative-1"><Linear><TrackingEvents><Tracking event="complete"><![CDATA[{{BASE_URL}}/track/complete/omid-wrapper-1]]></Tracking></TrackingEvents></Linear></Creative></Creatives>
+      <VASTAdTagURI><![CDATA[{{BASE_URL}}/vast/omid-inline.xml]]></VASTAdTagURI>
+    </Wrapper>
+  </Ad>
+</VAST>

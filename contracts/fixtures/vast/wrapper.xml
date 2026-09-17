@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VAST version="4.2" xmlns="http://www.iab.com/VAST">
+  <Ad id="wrapper-1">
+    <Wrapper followAdditionalWrappers="true" allowMultipleAds="false" fallbackOnNoAd="true">
+      <AdSystem version="1.0">EngageFixture</AdSystem>
+      <VASTAdTagURI><![CDATA[{{BASE_URL}}/vast/linear.xml]]></VASTAdTagURI>
+      <Impression><![CDATA[{{BASE_URL}}/track/impression/wrapper-1]]></Impression>
+      <Error><![CDATA[{{BASE_URL}}/track/error/wrapper-1?code=[ERRORCODE]]]></Error>
+      <Creatives><Creative id="wrapper-creative-1"><Linear><TrackingEvents><Tracking event="complete"><![CDATA[{{BASE_URL}}/track/complete/wrapper-1]]></Tracking></TrackingEvents><VideoClicks><ClickTracking><![CDATA[{{BASE_URL}}/track/click/wrapper-1]]></ClickTracking></VideoClicks></Linear></Creative></Creatives>
+    </Wrapper>
+  </Ad>
+</VAST>

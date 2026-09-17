@@ -13,3 +13,15 @@
 .externalNativeBuild
 .cxx
 local.properties
+**/build/
+**/.build/
+**/.swiftpm/
+**/DerivedData/
+**/xcuserdata/
+**/.gradle/
+.tools/
+dist/
+apple/Examples/*.xcodeproj/
+__pycache__/
+*.pyc
+**/node_modules/

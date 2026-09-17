@@ -1,0 +1,76 @@
+name: SDK v2
+on:
+  push:
+    paths: ['android/**', 'apple/**', 'shared/**', 'contracts/**', 'scripts/**', 'integration/**', 'Package.swift', '.github/workflows/**']
+  pull_request:
+    paths: ['android/**', 'apple/**', 'shared/**', 'contracts/**', 'scripts/**', 'integration/**', 'Package.swift', '.github/workflows/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm --prefix shared ci --ignore-scripts
+      - run: npm --prefix shared test
+      - run: node scripts/sync-mraid.mjs --check
+      - run: python3 -m unittest discover -s scripts/tests -v
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - run: gradle -p android testDebugUnitTest assemble lintDebug publishAllPublicationsToStagingRepository
+      - run: python3 scripts/check-android-consumer.py
+      - name: Measure shrunk release app growth (3 MiB budget per facade)
+        run: python3 scripts/measure-android-footprint.py --max-added-mib 3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-reports-and-staging
+          path: |
+            android/**/build/reports/
+            android/**/build/outputs/aar/
+            android/**/build/outputs/apk/
+            android/build/staging-repository/
+            dist/hardening/footprint/report.json
+            dist/hardening/footprint/build.log
+
+  apple:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: swift test --package-path apple/Core
+      - run: node scripts/check-apple-consumer.mjs
+      - run: xcodebuild -scheme EngageAdsMobile -destination 'generic/platform=iOS Simulator' -derivedDataPath apple/DerivedData/mobile CODE_SIGNING_ALLOWED=NO build
+      - run: xcodebuild -scheme EngageAdsTV -destination 'generic/platform=tvOS Simulator' -derivedDataPath apple/DerivedData/tv CODE_SIGNING_ALLOWED=NO build
+      - run: python3 scripts/check-apple-simulators.py
+      - run: brew install xcodegen
+      - run: bash apple/Examples/generate.sh
+      - run: xcodebuild -project apple/Examples/EngageAdsExamples.xcodeproj -scheme EngageMobileExample -destination 'generic/platform=iOS Simulator' -derivedDataPath apple/DerivedData/mobile-example CODE_SIGNING_ALLOWED=NO build
+      - run: xcodebuild -project apple/Examples/EngageAdsExamples.xcodeproj -scheme EngageTVExample -destination 'generic/platform=tvOS Simulator' -derivedDataPath apple/DerivedData/tv-example CODE_SIGNING_ALLOWED=NO build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apple-build-results
+          path: |
+            apple/DerivedData/**/Logs/
+            apple/DerivedData/*.xcresult/

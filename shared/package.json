@@ -1,0 +1,12 @@
+{
+  "name": "engage-ads-sdk-shared",
+  "version": "2.0.0-alpha.1",
+  "private": true,
+  "scripts": {
+    "build:omid-fixture": "node omid/build-fixture.mjs",
+    "test": "node omid/build-fixture.mjs --check && node --test mraid/*.test.js omid/*.test.js ../contracts/mock-server/*.test.js"
+  },
+  "devDependencies": {
+    "@iabtechlab-omsdk/open-measurement": "1.6.10"
+  }
+}

@@ -1,0 +1,1 @@
+{"id":"request-native","seatbid":[{"seat":"fixture-seat","bid":[{"id":"invalid-native","impid":"imp-1","price":1,"adm":"{\"ver\":\"1.2\",\"assets\":[{\"id\":1,\"title\":{\"text\":\"Only one of three required assets\"}}],\"link\":{\"url\":\"https://fixture.invalid\"}}"}]}],"cur":"USD"}

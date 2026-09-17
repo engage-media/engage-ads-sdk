@@ -1,0 +1,1 @@
+{"id":"request-banner","seatbid":[{"seat":"fixture-seat","bid":[{"id":"invalid-price-string","impid":"imp-1","price":"1.0","adm":"<p>invalid</p>"}]}],"cur":"USD"}

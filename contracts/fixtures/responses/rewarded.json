@@ -1,0 +1,1 @@
+{"id":"request-rewarded","seatbid":[{"seat":"fixture-seat","bid":[{"id":"bid-rewarded-1","impid":"imp-1","price":2.5,"adm":"{{VAST_LINEAR}}","nurl":"{{BASE_URL}}/notice/nurl/bid-rewarded-1","burl":"{{BASE_URL}}/notice/burl/bid-rewarded-1","crid":"creative-rewarded-1","w":390,"h":844}]}],"bidid":"auction-rewarded-1","cur":"USD"}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VAST version="4.2" xmlns="http://www.iab.com/VAST">
+  <Ad id="rewarded-skippable-1">
+    <InLine>
+      <AdSystem version="1.0">EngageFixture</AdSystem>
+      <AdTitle>Engage skippable rewarded fixture</AdTitle>
+      <Impression><![CDATA[{{BASE_URL}}/track/impression/rewarded-skippable-1]]></Impression>
+      <Error><![CDATA[{{BASE_URL}}/track/error/rewarded-skippable-1?code=[ERRORCODE]]]></Error>
+      <Creatives>
+        <Creative id="creative-rewarded-skippable-1">
+          <UniversalAdId idRegistry="engage.fixture">rewarded-skippable-1</UniversalAdId>
+          <Linear skipoffset="00:00:01">
+            <Duration>00:00:15</Duration>
+            <TrackingEvents>
+              <Tracking event="start"><![CDATA[{{BASE_URL}}/track/start/rewarded-skippable-1]]></Tracking>
+              <Tracking event="skip"><![CDATA[{{BASE_URL}}/track/skip/rewarded-skippable-1]]></Tracking>
+              <Tracking event="complete"><![CDATA[{{BASE_URL}}/track/complete/rewarded-skippable-1]]></Tracking>
+            </TrackingEvents>
+            <MediaFiles>
+              <MediaFile id="local-mp4-15s" delivery="progressive" type="video/mp4" width="320" height="180" scalable="true" maintainAspectRatio="true"><![CDATA[{{BASE_URL}}/media/test-card-15s.mp4]]></MediaFile>
+            </MediaFiles>
+          </Linear>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+</VAST>

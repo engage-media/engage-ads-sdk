@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VAST version="4.2" xmlns="http://www.iab.com/VAST">
+  <Ad id="omid-pod-1" sequence="1">
+    <InLine>
+      <AdSystem version="1.0">EngageFixture</AdSystem>
+      <Error><![CDATA[{{BASE_URL}}/track/error/omid-pod-1?code=[ERRORCODE]]]></Error>
+      <Impression><![CDATA[{{BASE_URL}}/track/impression/omid-pod-1]]></Impression>
+      <AdServingId>engage-fixture-omid-pod-1</AdServingId>
+      <AdTitle>OMID pod first</AdTitle>
+      <AdVerifications>
+        <Verification vendor="engage-fixture">
+          <JavaScriptResource apiFramework="omid" browserOptional="true"><![CDATA[{{BASE_URL}}/verification/omid-verification.js?id=omid-pod-1]]></JavaScriptResource>
+          <TrackingEvents><Tracking event="verificationNotExecuted"><![CDATA[{{BASE_URL}}/verification/event/verificationNotExecuted/omid-pod-1?reason=[REASON]]]></Tracking></TrackingEvents>
+          <VerificationParameters><![CDATA[fixture=omid-pod-1&mode=test-only]]></VerificationParameters>
+        </Verification>
+      </AdVerifications>
+      <Creatives>
+        <Creative id="omid-pod-1-creative">
+          <Linear>
+            <TrackingEvents><Tracking event="start"><![CDATA[{{BASE_URL}}/track/start/omid-pod-1]]></Tracking><Tracking event="complete"><![CDATA[{{BASE_URL}}/track/complete/omid-pod-1]]></Tracking></TrackingEvents>
+            <Duration>00:00:02</Duration>
+            <MediaFiles><MediaFile id="local-mp4" delivery="progressive" type="video/mp4" width="320" height="180"><![CDATA[{{BASE_URL}}/media/test-card.mp4]]></MediaFile></MediaFiles>
+          </Linear>
+          <UniversalAdId idRegistry="engage.fixture">omid-pod-1</UniversalAdId>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+  <Ad id="omid-pod-2" sequence="2">
+    <InLine>
+      <AdSystem version="1.0">EngageFixture</AdSystem>
+      <Error><![CDATA[{{BASE_URL}}/track/error/omid-pod-2?code=[ERRORCODE]]]></Error>
+      <Impression><![CDATA[{{BASE_URL}}/track/impression/omid-pod-2]]></Impression>
+      <AdServingId>engage-fixture-omid-pod-2</AdServingId>
+      <AdTitle>OMID pod second</AdTitle>
+      <AdVerifications>
+        <Verification vendor="engage-fixture">
+          <JavaScriptResource apiFramework="omid" browserOptional="true"><![CDATA[{{BASE_URL}}/verification/omid-verification.js?id=omid-pod-2]]></JavaScriptResource>
+          <TrackingEvents><Tracking event="verificationNotExecuted"><![CDATA[{{BASE_URL}}/verification/event/verificationNotExecuted/omid-pod-2?reason=[REASON]]]></Tracking></TrackingEvents>
+          <VerificationParameters><![CDATA[fixture=omid-pod-2&mode=test-only]]></VerificationParameters>
+        </Verification>
+      </AdVerifications>
+      <Creatives>
+        <Creative id="omid-pod-2-creative">
+          <Linear>
+            <TrackingEvents><Tracking event="start"><![CDATA[{{BASE_URL}}/track/start/omid-pod-2]]></Tracking><Tracking event="complete"><![CDATA[{{BASE_URL}}/track/complete/omid-pod-2]]></Tracking></TrackingEvents>
+            <Duration>00:00:02</Duration>
+            <MediaFiles><MediaFile id="local-mp4" delivery="progressive" type="video/mp4" width="320" height="180"><![CDATA[{{BASE_URL}}/media/test-card.mp4]]></MediaFile></MediaFiles>
+          </Linear>
+          <UniversalAdId idRegistry="engage.fixture">omid-pod-2</UniversalAdId>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+</VAST>

@@ -1,0 +1,1 @@
+{"id":"request-omid-pod","seatbid":[{"seat":"fixture-seat","bid":[{"id":"bid-omid-pod-1","impid":"imp-1","price":1.25,"adm":"{{VAST_OMID_POD}}","nurl":"{{BASE_URL}}/notice/nurl/bid-omid-pod-1","burl":"{{BASE_URL}}/notice/burl/bid-omid-pod-1","crid":"creative-omid-pod-1","apis":[7]}]}],"bidid":"auction-omid-pod-1","cur":"USD"}

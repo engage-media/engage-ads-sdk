@@ -1,0 +1,1 @@
+-keepclassmembers class com.engage.ads.render.mraid.MraidBridge$JavascriptApi { @android.webkit.JavascriptInterface <methods>; }

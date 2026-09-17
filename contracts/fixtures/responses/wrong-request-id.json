@@ -1,0 +1,1 @@
+{"id":"different-auction","seatbid":[{"seat":"fixture-seat","bid":[{"id":"wrong-request-id","impid":"imp-1","price":1,"adm":"<p>must reject request id mismatch</p>"}]}],"cur":"USD"}

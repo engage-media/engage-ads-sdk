@@ -1,0 +1,2 @@
+# Preserve the official generated OMID verification client byte-for-byte.
+contracts/fixtures/verification/omid-verification.js whitespace=-blank-at-eol

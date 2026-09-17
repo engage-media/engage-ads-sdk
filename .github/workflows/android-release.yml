@@ -1,0 +1,50 @@
+name: Stage Android release
+on:
+  workflow_dispatch:
+    inputs:
+      upload_to_central:
+        description: Upload signed bundle to Central for validation (manual publication)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    environment: android-release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm --prefix shared test
+      - run: node scripts/sync-mraid.mjs --check
+      - run: python3 -m unittest discover -s scripts/tests -v
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Test and stage signed publications
+        env:
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.MAVEN_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_licenseName: ${{ vars.MAVEN_LICENSE_NAME }}
+          ORG_GRADLE_PROJECT_licenseUrl: ${{ vars.MAVEN_LICENSE_URL }}
+        run: gradle -p android testDebugUnitTest assembleRelease publishAllPublicationsToStagingRepository
+      - run: python3 scripts/check-android-consumer.py
+      - run: python3 scripts/bundle-central.py android/build/staging-repository dist/engage-android-central.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signed-central-bundle
+          path: dist/engage-android-central.zip
+      - name: Upload for Central validation
+        if: inputs.upload_to_central
+        env:
+          CENTRAL_TOKEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
+          CENTRAL_TOKEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
+        run: python3 scripts/upload-central.py dist/engage-android-central.zip

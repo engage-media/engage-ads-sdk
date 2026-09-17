@@ -1,251 +1,76 @@
-# Engage Ads SDK
+# Engage Ads SDK v2
 
-[![](https://jitpack.io/v/engage-media/engage-ads-sdk.svg)](https://jitpack.io/#engage-media/engage-ads-sdk)
-Version: 1.1.0-alpha
+Native Android and Apple SDKs for server-mediated advertising. Your application supplies an OpenRTB 2.6 endpoint or a VAST ad-tag URL. The ad server runs bidding; the SDK requests, renders, and tracks the selected ad.
 
-## Overview
+This tree contains the v2 implementation and release tooling. The initial version is **2.0.0-alpha.1**. Packages are not published merely by building this repository; see [release checks](docs/RELEASE.md) and [validation status](docs/VALIDATION.md).
 
-Engage Ads SDK is a comprehensive solution designed to integrate video ads into Android applications
-seamlessly. This SDK supports various ad formats, including pre-roll, mid-roll, and post-roll ads,
-leveraging the VAST standard for video ads. It is built with Kotlin and is compatible with Java
-projects.
+See [performance and reliability](docs/PERFORMANCE_AND_RELIABILITY.md) for the Android size budget, measurement commands, input limits, fault containment, and remaining device-validation gates.
 
-## Features
+See [Open Measurement](docs/OPEN_MEASUREMENT.md) for IMA versus custom-renderer session ownership, verification metadata, and the remaining partner-artifact and certification gates.
 
-- Support for VAST 2.0, 3.0, and 4.0.
-- Pre-roll, Mid-roll, and Post-roll ad support.
-- Easy integration with ExoPlayer.
-- GDPR compliance support.
-- Customizable ad loading and interaction listeners.
+| Platform | Formats | Minimum OS |
+| --- | --- | --- |
+| Android mobile | Banner, interstitial, rewarded, native image/video, in-stream video | Android 7 / API 24 |
+| iOS / iPadOS | Banner, interstitial, rewarded, native image/video, in-stream video | 15 |
+| Android TV / supported Android-based Fire TV | In-stream video and ad pods | API 24 |
+| Apple TV | In-stream video and ad pods | tvOS 15 |
 
-## Requirements
+Mobile rich media uses a shared MRAID 3 bridge with native platform containers. Video uses Google IMA with Media3 on Android and AVPlayer on Apple. Capabilities are platform-specific; read [the capability matrix](docs/CAPABILITIES.md).
 
-- Android SDK version 21 (Lollipop) or higher.
-- Android Studio Koala | 2024.1.1 Patch 1 or later.
-- Kotlin version 1.9.0.
-- Gradle version 8.5.0.
+## Install
 
-## Installation
+After the Android release is published, use Maven Central and add **one** facade dependency:
 
-Add the following dependencies to your `build.gradle` file:
-
-```groovy
+```kotlin
+repositories { google(); mavenCentral() }
 dependencies {
-    implementation 'com.engage.engageadssdk:engage-ads-sdk:v1.1.0-alpha'
+    implementation("com.github.engage-media:engage-ads-mobile:2.0.0-alpha.1")
+    // TV apps use engage-ads-tv instead.
 }
 ```
 
-Ensure you have `mavenCentral()` in your project's repositories list:
+Android applications must enable core-library desugaring for IMA; the sample apps show the complete Gradle setup. For unpublished builds, publish to the local staging repository and use its Maven URL. `scripts/check-android-consumer.py` verifies both facades from that repository without project dependencies.
 
-```groovy
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-    }
-}
+For Apple, add this repository through Xcode's Swift Package Manager and select **EngageAdsMobile** or **EngageAdsTV**. Until an Apple version tag is published, use a reviewed commit or the local package. IMA resolves as a platform-specific package dependency.
+
+## Configure your endpoint
+
+Put the endpoint in your host app's build configuration, then pass an explicit `Endpoint` into `EngageConfiguration` when creating `EngageClient`. OpenRTB uses JSON POST requests; direct VAST uses the supplied tag URL and explicit query parameters. There is no hidden Engage production endpoint, automatic protocol fallback, or debug-mode endpoint substitution.
+
+Supply privacy signals from the host app's consent flow. Missing advertising identifiers are omitted. The SDK does not generate advertising IDs or call a location service.
+
+Ad objects are single-use. Attach event listeners, load an opportunity, display or bind the ready ad, and destroy it when its screen is disposed. Connect content pause/resume callbacks for video breaks. Sample apps live under [Android](android/) and [Apple](apple/Examples/).
+
+## Tracking contract
+
+- `nurl` is the OpenRTB win notice, or supplies markup when `adm` is absent.
+- `burl` fires when the winning ad **first displays**, never on receipt or preload. Duplicate callbacks do not cause duplicate dispatches. There is no automatic retry after an uncertain notification result.
+- Direct VAST uses player-owned VAST tracking, without a separate billing notice.
+- Rewarded video grants a single app callback only after successful completion. The host app owns reward fulfillment.
+
+The server must return one selected winner per requested impression and resolve monetary notification macros. Read the complete [SDK/server contract](contracts/SDK_V2.md).
+
+## Develop
+
+```sh
+npm --prefix shared ci --ignore-scripts
+npm --prefix shared test
+node scripts/sync-mraid.mjs --check
+scripts/android-gradle.sh testDebugUnitTest assemble
+swift test --package-path apple/Core
+python3 -m unittest discover -s scripts/tests -v
 ```
 
-## Usage
+The Android helper downloads checksum-verified Gradle 8.9 and uses JDK 17. Full Xcode is required to build iOS/tvOS renderers and simulator apps. The Foundation-only Apple core can be tested independently with Swift.
 
-1. Initialize the SDK in your `Application` class or before you start loading ads:
+For local deterministic ad responses, run the [mock server](contracts/mock-server/). It serves rich-media creatives, Native 1.2 responses, VAST wrappers/pods, local media, and observable tracking endpoints without production ad traffic.
 
-```kotlin
-EMAdsModule.init(object : EMAdsModuleInput {
-    override val isGdprApproved: Boolean = true
-    override val publisherId: String = "Your Publisher ID"
-    override val channelId: String = "Channel ID"
-    override val context: Context = applicationContext
-    override val isDebug: Boolean = true // To see debug ads set this to true
-    override val bundleId: String? = if (isAmazonTVApp()) "Your Bundle ID" else null
-    override val isAutoPlay: Boolean = true  // defaults to false
-})
-```
+## Repository and releases
 
-Or use the builder
+- `android/`: standalone v2 Gradle build, core, facade modules, and sample apps.
+- `apple/`: Swift core, mobile/TV renderers, tests, and sample projects.
+- `shared/`: canonical MRAID JavaScript and tests.
+- `contracts/`: wire contract, deterministic fixtures, and mock server.
+- `scripts/`: build helpers, resource synchronization, consumer checks, and signed release bundles.
 
-```kotlin
-EMAdsModule.init(EMAdsModuleInputBuilder().apply {
-    isGdprApproved = true
-    publisherId = "Your Publisher ID"
-    channelId = "Channel ID"
-    context = applicationContext
-    isDebug = true
-    bundleId = if (isAmazonTVApp()) "Your Bundle ID" else null
-    isAutoPlay = true
-})
-```
-
-2. Create an `EMAdView` and set it up with your `Activity` or `Fragment`:
-
-### XML
-
-```xml
-
-<com.engage.engageadssdk.EMAdView android:id="@+id/adView" android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
-```
-
-and in your `Activity` or `Fragment`:
-
-```kotlin
-val adView = findViewById<EMAdView>(R.id.adView).apply {
-    setContentController(object : EmClientContentController {
-        override fun pauseContent() {
-            // Pause your content here
-        }
-        override fun resumeContent() {
-            // Resume your content here
-        }
-    })
-    setAdEventListener(object : EMVideoPlayerListener {
-        override fun onAdStarted() {
-            // Ad started
-        }
-        override fun onAdLoading() {
-            // Ad loading
-        }
-        override fun onAdsLoaded() {
-            // Ad loaded successfully
-        }
-
-        override fun onAdEnded() {
-            // Ad ended
-        }
-        override fun onAdPaused() {
-            // Ad paused
-        }
-        override fun onAdResumed() {
-            // Ad resumed
-        }
-
-        fun onAdLoadError(message: String) {
-            // Default implementation that does nothing
-        }
-        fun onAdTapped() {
-            // Default implementation that does nothing
-        }
-
-    }
-}
-```
-
-### Jetpack Compose
-
-```kotlin
-@Composable
-fun AdViewComposable() {
-    AndroidView(
-        factory = { context: Context ->
-            EMAdView(context).apply {
-                setContentController(object : EmClientContentController {
-                    override fun pauseContent() {
-                        // Pause your content here
-                    }
-                    override fun resumeContent() {
-                        // Resume your content here
-                    }
-                })
-                setAdEventListener(
-                    object : EMVideoPlayerListener {
-                        override fun onAdStarted() {
-                            // Ad started
-                        }
-                        override fun onAdLoading() {
-                            // Ad loading
-                        }
-                        override fun onAdsLoaded() {
-                            // Ad loaded successfully
-                        }
-
-                        override fun onAdEnded() {
-                            // Ad ended
-                        }
-                        override fun onAdPaused() {
-                            // Ad paused
-                        }
-                        override fun onAdResumed() {
-                            // Ad resumed
-                        }
-
-                        fun onAdLoadError(message: String) {
-                            // Default implementation that does nothing
-                        }
-                        fun onAdTapped() {
-                            // Default implementation that does nothing
-                        }
-
-                    },
-                    modifier = Modifier.fillMaxWidth().wrapContentHeight()
-                )
-            }
-        }
-```
-
-### Simple Kotlin/Java Format
-
-```kotlin
-val adView = EMAdView(context).apply {
-    setContentController(object: EmClientContentController {
-        override fun pauseContent() {
-            // Pause your content here
-        }
-        override fun resumeContent() {
-            // Resume your content here
-        }
-    })
-    setAdEventListener(object: EMVideoPlayerListener {
-        override  fun onAdStarted() {
-            // Ad started
-        }
-        override fun onAdLoading() {
-            // Ad loading
-        }
-        override fun onAdsLoaded() {
-            // Ad loaded successfully
-        }
-
-        override fun onAdEnded() {
-            // Ad ended
-        }
-        override fun onAdPaused() {
-            // Ad paused
-        }
-        override fun onAdResumed(){
-            // Ad resumed
-        }
-
-        fun onAdLoadError(message: String) {
-            // Default implementation that does nothing
-        }
-        fun onAdTapped() {
-            // Default implementation that does nothing
-        }
-
-    }
-}
-```
-
-3. Load ads using the `EMAdView` instance (or let the SDK do it for you automatically by using the `isAutoPlay` flag):
-
-```kotlin
-adView.loadAd()
-```
-
-4. Play ads using the `EMAdView` instance:
-
-```kotlin
-adView.playAd()
-```
-
-# Contributing
-
-We welcome contributions to the Engage Ads SDK. To contribute, Please submit any bugs, issues, or
-feature requests through the GitHub issue tracker.
-
-# License
-
-Engage Ads SDK is licensed under the MIT License. See the LICENSE file for more details.
-
-```
+Android tags use `android-v<version>`; Apple tags use `<version>`. Releases are independent. The old root Gradle project is preserved for v1 history; **use the v2 Android helper rather than root `./gradlew` for new work**. Existing applications should follow [the v2 migration guide](docs/MIGRATION_V2.md); the [v1 README](docs/V1.md) remains available.

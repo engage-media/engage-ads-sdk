@@ -1,0 +1,47 @@
+# Engage SDK v2 implementation contract
+
+This is the shared implementation boundary. Kotlin and Swift expose idiomatic equivalents, not shared runtime code. The current v1 tree remains untouched for historical builds. New code lives in `android/`, `apple/`, `shared/`, and `contracts/`.
+
+## Public model
+
+`EngageClient(configuration)` owns transport, privacy snapshots, and diagnostics. `Endpoint` is explicitly OpenRTB26(url, headers) or VastTag(url, parameters). Configuration includes app metadata (bundle, name, store URL, publisher ID), device category (mobile/tv), request timeout 5s and creative timeout 15s. Endpoint changes require a new client. Privacy is updateable; requests snapshot it. No automatic identity generation, location lookup, retry, endpoint substitution, or auction on device.
+
+`AdRequest` includes placementId, format (banner/interstitial/rewarded/native/instream), size, content metadata, video constraints, and JSON ext. Native requests use Native Ads 1.2 assets. Native-video capability is requested explicitly. TV accepts instream only. Direct VAST accepts instream, rewarded, and video interstitial, not banner/native. Ext cannot overwrite standard fields.
+
+States: idle, loading, ready, displaying, finished, failed, destroyed. Only idle can load; loaded ad objects are single-use. Destroy cancels work, invalidates callback generations, frees resources, and resumes content if paused. Events distinguish loaded, displayed, adCompleted, breakCompleted, dismissed, noFill, rewardEarned, clicked, error. Public UI events are delivered on the main thread. Reward only once following successful complete of the sole rewarded creative, never skip/error/dismissal. Multi-ad responses are rejected for rewarded placements.
+
+## OpenRTB
+
+POST application/json with x-openrtb-version: 2.6. Request id and imp id are random request identifiers (never device IDs). One imp per SDK request; imp.tagid is placementId, app.bundle/id metadata are explicit. 204, empty seatbid, and empty bid arrays mean no fill; malformed bodies are errors. Require exactly one bid matching the request impid across all seats; reject ambiguous, unmatched, unsupported or expired bids. Bid price must be finite and nonnegative; currencies must not be converted on client. adm is preferred; if absent, GET nurl for markup. If adm present, nurl is a once-only win notice on bid acceptance. nurl and burl are separate from impression trackers. Notice URLs containing unresolved ${...} macros are rejected with a diagnostic, never guessed; server resolves monetary macros. Notification failures do not prevent rendering.
+
+Normalize into a LoadedCreative containing markup, creative kind, request/bid IDs, optional burl, expiry, and native assets. Keep notice URLs internal. Never bill a failed, cancelled or merely loaded ad. `burl` is dispatched once on first display per bid; no automatic retries or durable replay. Native/banner display requires content readiness, nonzero visible area and active foreground window. Video uses the native IMA STARTED event with foreground/visibility guards (see the platform adaptation below). Direct VAST has no burl. IMA alone fires VAST trackers. Native impression/click trackers are owned by the native renderer; native eventtrackers only fire on the implemented event, never claim unsupported verification/viewability.
+
+## VAST
+
+Preserve endpoint query parameters and add explicit caller parameters using proper URL encoding. Do not append invented publisher/channel parameters. Support documented standard macros only; retain no raw sensitive values in logs. Delegate wrappers, linear creatives, pods and VAST tracking to IMA. No hidden fallback URL. Supply permitted app/device signals to transport; omit unavailable advertising identifiers rather than synthesizing them. Consent/regulatory values represent host inputs, not inferred approval.
+
+VAST wrapper targets must permit IMA's cross-origin fetches. The Android runtime validation observed IMA fetching the wrapped XML from its `https://imasdk.googleapis.com` WebView origin; a missing CORS response header caused playback failure even though the SDK's initial native HTTP fetch succeeded. The local fixture server reflects the request origin with credential support for this test. Production ad servers should apply their own appropriate CORS policy and use HTTPS.
+
+## MRAID bridge v1
+
+Canonical JavaScript: `shared/mraid/mraid.js`. Native packaging copies the exact file using repository scripts (root orchestrator owns packaging sync). Bootstrap before creative execution. JS calls `window.EngageMraidNative.postMessage(JSON.stringify({id: integer, command: string, args: object}))`; Android exposes this object using a narrow JS interface, iOS bootstrap forwards to `window.webkit.messageHandlers.engageMraid.postMessage`.
+
+Native calls `window.__engageMraid.receive(message)` where message is `{type:'ready',state:'default',placementType:'inline'|'interstitial',screenSize:{width,height},maxSize:{width,height},currentPosition:{x,y,width,height},defaultPosition:{x,y,width,height},supports:{sms:false,tel:false,calendar:false,storePicture:false,inlineVideo:true}}`, `{type:'state',state}`, `{type:'geometry',screenSize,maxSize,currentPosition,defaultPosition}`, `{type:'visibility',viewable:boolean,exposedPercentage:number,visibleRectangle:{x,y,width,height},occlusionRectangles:[]}`, `{type:'audio',volume:number|null}`, or `{type:'error',message,action}`.
+
+MRAID3 clarification: ready and geometry also contain `currentAppOrientation:{orientation:'portrait'|'landscape',locked:boolean}`. Ready contains `location:null` and `supports.location:false`; v2 never collects location. Audio volume is 0..100 or null, not 0..1. Native hosts report actual orientation, lock status and audio values.
+
+OpenRTB2.6 privacy fields are `regs.gdpr`, `regs.gpp`, `regs.gpp_sid`, `regs.us_privacy`, `regs.coppa`, `user.consent`, and `device.lmt`/`device.ifa` when host-authorized. Do not use older ext locations. Native defaults: required title id1 len90, required main image id2 type3 min1200x627, optional description id3 data2 len140; optional video id4 when requested. Native IDs may be zero but must be unique. JSON booleans/strings are not numeric prices; response id must match request id and every returned bid must match the single requested impression. Empty bid arrays are nofill; malformed typed fields are errors.
+
+Native IMA adaptation: the pinned Android 3.40.0 and Apple SDK public event enums have no IMPRESSION event. Both therefore use the first STARTED playback event with a visible foreground container as the SDK billing trigger, guarded once per bid/pod. IMA retains ownership of all VAST impression trackers. Never fail the second ad in a pod merely because the bid is already displaying.
+
+Commands: open({url}), close({}), expand({url?,properties}), resize({properties}), setOrientationProperties({allowOrientationChange,forceOrientation}), playVideo({url}), storePicture({url}), createCalendarEvent({event}), unload({}). JS owns getters/property validation/events. Native owns geometry, visibility, orientation, expansion overlays, restoring layouts and external navigation. Unsupported optional features return errors and supports=false. No arbitrary native reflection/file access. Platform code must report actual feature support, not unconditional promises.
+
+## Ownership and delivery
+
+Open Measurement ownership and bounded native verification metadata are defined in [OPEN_MEASUREMENT.md](../docs/OPEN_MEASUREMENT.md). IMA owns video sessions; Engage must never create a competing session for the same video. Custom HTML/native measurement requires an actual Engage-namespaced backend, and remains unadvertised when that backend is unavailable. Native OM uses event 555 / method 2 with `ext.vendorKey` and `ext.verification_parameters`. Measurement never controls billing or rewards. The current work expands the original deferred measurement scope; no certification is implied by fixture or lifecycle-test success.
+
+Defensive resource limits are part of the supported profile: SDK response/OpenRTB 2 MiB, request/VAST markup 1 MiB UTF-8, JSON/XML depth 64, native assets 64 and trackers 128 per array. Native images are downloaded up to 8 MiB and sampled to at most 4,194,304 pixels. MRAID messages are limited to 65,536 UTF-16 code units and 64 native commands per second. See [performance and reliability](../docs/PERFORMANCE_AND_RELIABILITY.md) for scope, buffering, and the additional bridge limits. These SDK limits do not apply automatically to IMA or WebView-managed downloads.
+
+Android agent: `android/**` only. Apple agent: `apple/**` and root `Package.swift` only. Shared agent: `shared/**`, `contracts/fixtures/**`, `contracts/mock-server/**` only; do not edit this document. Root: all other files, packaging integration, cross-platform verification and final review. Ask root before changing the shared contract. Work is additive; do not modify v1 or commit.
+
+New Android artifacts: com.github.engage-media:engage-ads-mobile and engage-ads-tv, version 2.0.0-alpha.1. Apple products: EngageAdsMobile, EngageAdsTV, version 2.0.0-alpha.1. Root Swift package has conditional IMA dependencies and independently testable Foundation-only core. Android minSdk24, compileSdk35+, JDK17, IMA3.40.0. iOS/tvOS15+, IMA iOS3.33.0/tvOS4.17.0. Keep testable logic separate from UI frameworks.

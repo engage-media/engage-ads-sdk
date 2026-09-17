@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VAST version="4.2" xmlns="http://www.iab.com/VAST">
+  <Ad id="omid-inline-1">
+    <InLine>
+      <AdSystem version="1.0">EngageFixture</AdSystem>
+      <Error><![CDATA[{{BASE_URL}}/track/error/omid-inline-1?code=[ERRORCODE]]]></Error>
+      <Impression><![CDATA[{{BASE_URL}}/track/impression/omid-inline-1]]></Impression>
+      <AdServingId>engage-fixture-omid-inline-1</AdServingId>
+      <AdTitle>OMID inline fixture</AdTitle>
+      <AdVerifications>
+        <Verification vendor="engage-fixture">
+          <JavaScriptResource apiFramework="omid" browserOptional="true"><![CDATA[{{BASE_URL}}/verification/omid-verification.js?id=omid-inline-1]]></JavaScriptResource>
+          <TrackingEvents><Tracking event="verificationNotExecuted"><![CDATA[{{BASE_URL}}/verification/event/verificationNotExecuted/omid-inline-1?reason=[REASON]]]></Tracking></TrackingEvents>
+          <VerificationParameters><![CDATA[fixture=omid-inline-1&mode=test-only]]></VerificationParameters>
+        </Verification>
+      </AdVerifications>
+      <Creatives>
+        <Creative id="omid-inline-1-creative">
+          <Linear>
+            <TrackingEvents><Tracking event="start"><![CDATA[{{BASE_URL}}/track/start/omid-inline-1]]></Tracking><Tracking event="complete"><![CDATA[{{BASE_URL}}/track/complete/omid-inline-1]]></Tracking></TrackingEvents>
+            <Duration>00:00:02</Duration>
+            <MediaFiles><MediaFile id="local-mp4" delivery="progressive" type="video/mp4" width="320" height="180"><![CDATA[{{BASE_URL}}/media/test-card.mp4]]></MediaFile></MediaFiles>
+          </Linear>
+          <UniversalAdId idRegistry="engage.fixture">omid-inline-1</UniversalAdId>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+</VAST>
